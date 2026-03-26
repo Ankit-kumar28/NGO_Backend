@@ -50,14 +50,13 @@ const storage = multer.diskStorage({
           return cb(new Error("NGO not found"), null);
         }
 
-        console.log("👉 NGO:", ngo.name);
+        console.log("NGO:", ngo.name);
 
-        // 🔥 safe folder name
+        
         const ngoFolderName = ngo.name.replace(/\s+/g, "_");
 
         const uploadPath = `public/uploads/${ngoFolderName}`;
 
-        // create folder if not exists
         if (!fs.existsSync(uploadPath)) {
           fs.mkdirSync(uploadPath, { recursive: true });
         }
@@ -78,7 +77,6 @@ const storage = multer.diskStorage({
 });
 
 
-// 🔥 FILE FILTER (Image + PDF)
 const fileFilter = (req, file, cb) => {
   const allowedTypes = [
     "image/jpeg",
@@ -95,11 +93,8 @@ const fileFilter = (req, file, cb) => {
 };
 
 
-// 🔥 SIZE LIMIT (important)
 export const upload = multer({
   storage,
   fileFilter,
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB
-  }
+  
 });
