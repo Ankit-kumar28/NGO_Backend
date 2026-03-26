@@ -1,0 +1,86 @@
+import mongoose from "mongoose";
+
+const gallerySchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    description: {
+      type: String,
+    //   trim: true,
+    //   maxlength: 500,
+    },
+
+    mediaUrl: {
+      type: String,
+      required: true, // Cloudinary / S3 URL
+    },
+
+    mediaType: {
+      type: String,
+      enum: ["image", "video"],
+      required: true,
+      index: true,
+    },
+
+    thumbnailUrl: {
+      type: String, // required for video preview (optional for image)
+    },
+    ngo: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "NGO",
+  required: true,
+  index: true
+},
+
+    // 👤 Who uploaded
+uploadedBy: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "User"
+},
+   
+
+    // tags: [
+    //   {
+    //     type: String,
+    //     index: true,
+    //   },
+    // ],
+
+    eventDate: {
+      type: Date,
+      index: true,
+    },
+
+    isFeatured: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+
+    views: {
+      type: Number,
+      // default: 0,
+    },
+
+    
+  },
+  {
+    timestamps: true,
+  }
+);
+
+
+//  TEXT SEARCH (optional but useful)
+// gallerySchema.index({
+//   title: "text",
+//   description: "text",
+//   tags: "text",
+//   location: "text",
+// });
+
+
+export const Gallery = mongoose.model("Gallery", gallerySchema);
