@@ -31,7 +31,5 @@ const getInvolvedSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// 🔥 prevent duplicate type per NGO
-getInvolvedSchema.index({ ngo: 1, type: 1 }, { unique: true });
 
 export default mongoose.model("GetInvolved", getInvolvedSchema);

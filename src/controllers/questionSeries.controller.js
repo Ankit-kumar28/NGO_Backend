@@ -87,37 +87,36 @@ export const getQuestionSeries = async (req, res) => {
   }
 };
 
-// export const getSingleQuestionSeries = async (req, res) => {
-//   try {
-//     const { slug } = req.params;
+export const getSingleQuestionSeries = async (req, res) => {
+  try {
+    const { id } = req.params;       
 
-//     const qs = await QuestionSeries.findOne({
-//       slug,
-//       ngo: req.ngoId,
-//       visibility: "public",
-//       status: "published"
-//     });
+    const qs = await QuestionSeries.findOne({
+      _id: id,
+      ngo: req.ngo,          
+      visibility: "public",
+      status: "published"
+    });
 
-//     if (!qs) {
-//       return res.status(404).json({
-//         message: "Not found"
-//       });
-//     }
+    if (!qs) {
+      return res.status(404).json({
+        message: "Question Series not found"
+      });
+    }
 
-//     // 🔥 VIEWS INCREMENT
-//     qs.views += 1;
-//     await qs.save();
+    qs.views = (qs.views || 0) + 1;
+    await qs.save();
 
-//     res.json({
-//       success: true,
-//       data: qs
-//     });
+    res.json({
+      success: true,
+      data: qs
+    });
 
-//   } catch (error) {
-//     res.status(500).json({ message: "Server error" });
-//   }
-// };
-
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 
 export const getMyQuestionSeries = async (req, res) => {
@@ -139,7 +138,6 @@ export const getMyQuestionSeries = async (req, res) => {
 
 
 
-// ================= DELETE =================
 export const deleteQuestionSeries = async (req, res) => {
   try {
     const { id } = req.params;
@@ -154,8 +152,7 @@ export const deleteQuestionSeries = async (req, res) => {
         message: "Not found or unauthorized"
       });
     }
-
-    // 🔥 DELETE FILES
+    
     if (qs.coverImage) {
       const imgPath = path.join("public", qs.coverImage);
       if (fs.existsSync(imgPath)) {

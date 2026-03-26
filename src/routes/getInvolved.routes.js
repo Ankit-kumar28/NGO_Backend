@@ -15,6 +15,7 @@ router.get("/", ngoMiddleware, getGetInvolved);
 
 router.post(
   "/",  
+  authMiddleware,
   upload.single("image"),
   upsertGetInvolved
 );

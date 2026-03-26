@@ -4,7 +4,7 @@ import Contact from "../models/contact.model.js";
 
 export const createContact = async (req, res) => {
   try {
-    console.log("👉 Create Contact API called");
+    console.log(" Create Contact API called");
 
     const { name, email, phone, subject, message } = req.body;
 

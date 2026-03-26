@@ -4,11 +4,11 @@ export const ngoMiddleware = async (req, res, next) => {
   try {
     console.log(" NGO Middleware triggered");
 
-    //  Get NGO code from header
+   
     const ngoCode = req.headers["x-ngo-id"];
     console.log(" Received NGO Code:", ngoCode);
 
-    //  Check if header exists
+   
     if (!ngoCode) {
       console.log("NGO code missing in headers");
       return res.status(400).json({
@@ -17,12 +17,12 @@ export const ngoMiddleware = async (req, res, next) => {
       });
     }
 
-    //  Find NGO in DB using code
+   
     const ngo = await NGO.findOne({ code: ngoCode });
 
     console.log(" NGO found in DB:", ngo);
 
-    //  If NGO not found
+    
     if (!ngo) {
       console.log(" Invalid NGO code");
       return res.status(404).json({
@@ -31,7 +31,6 @@ export const ngoMiddleware = async (req, res, next) => {
       });
     }
 
-    //  Check if NGO is active
     if (!ngo.isActive) {
       console.log(" NGO is inactive");
       return res.status(403).json({
@@ -40,7 +39,6 @@ export const ngoMiddleware = async (req, res, next) => {
       });
     }
 
-    //  Attach NGO ID to request (VERY IMPORTANT )
       req.ngo = ngo;
       req.ngoId = ngo._id;
     req.ngoCode = ngo.code;

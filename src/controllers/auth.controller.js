@@ -14,7 +14,6 @@ export const register = async (req, res) => {
       });
     }
 
-    // Find NGO
     const ngo = await NGO.findOne({ code: ngoCode });
     if (!ngo) {
       return res.status(404).json({
@@ -23,7 +22,6 @@ export const register = async (req, res) => {
       });
     }
 
-    // Check existing user
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(409).json({
@@ -61,7 +59,6 @@ export const register = async (req, res) => {
   }
 };
 
-// ==================== LOGIN ====================
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -91,14 +88,14 @@ export const login = async (req, res) => {
       });
     }
 
-    // 🔥 Generate Token with ngoId
+  
     const token = jwt.sign(
   {
     id: user._id,
     role: user.role,
     ngoId: user.ngo._id,
     ngoCode: user.ngo.code,
-    ngoName: user.ngo.name   // 👈 FIXED
+    ngoName: user.ngo.name   
   },
   process.env.SECRET_KEY,
   { expiresIn: "1d" }

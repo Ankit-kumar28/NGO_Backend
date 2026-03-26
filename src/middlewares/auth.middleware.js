@@ -15,8 +15,8 @@ export const authMiddleware = (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.SECRET_KEY);
 
-    req.user = decoded;      // contains { id, role, ngoId }
-    req.ngoId = decoded.ngoId;   // ← Easy access in controllers
+    req.user = decoded;     
+    req.ngoId = decoded.ngoId;   
     req.ngoCode=decoded.ngoCode
     req.ngoName = decoded.ngoName;
 

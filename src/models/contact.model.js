@@ -26,8 +26,6 @@ const contactSchema = new mongoose.Schema(
       type: String,
       required: true
     },
-
-    // 🔥 MOST IMPORTANT (tenant)
     ngo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "NGO",
@@ -43,7 +41,5 @@ const contactSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// index for fast queries
-contactSchema.index({ ngo: 1 });
 
 export default mongoose.model("Contact", contactSchema);

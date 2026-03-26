@@ -1,5 +1,5 @@
 import express from "express";
-import { getKnowledgeBase,createKnowledgeBase,deleteKnowledgeBase,getMyKnowledgeBase } from "../controllers/knowledgeBase.controller.js";
+import { getKnowledgeBase,createKnowledgeBase,deleteKnowledgeBase,getMyKnowledgeBase,getSingleKnowledgeBase } from "../controllers/knowledgeBase.controller.js";
 
 import { ngoMiddleware } from "../middlewares/ngo.middleware.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
@@ -8,24 +8,24 @@ import {upload }from "../middlewares/upload.middleware.js";
 const router = express.Router();
 
 
-router.get("/knowledgeBase", ngoMiddleware, getKnowledgeBase);
-
+router.get("/knowledgebase", ngoMiddleware, getKnowledgeBase);
+router.get("/knowledgebase/:id", ngoMiddleware, getSingleKnowledgeBase);
 
 router.post(
-  "/knowledgeBase",
+  "/knowledgebase",
   authMiddleware,        
   upload.single("file"),
   createKnowledgeBase
 );
 
 router.get(
-  "/admin/knowledgeBase",
+  "/admin/knowledgebase",
   authMiddleware,
   getMyKnowledgeBase
 );
 
 router.delete(
-  "/:id",
+  "/knowledgebase/:id",
   authMiddleware,
   deleteKnowledgeBase
 );

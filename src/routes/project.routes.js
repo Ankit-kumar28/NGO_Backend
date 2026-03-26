@@ -3,28 +3,28 @@ import {
   createProject,
   getProjects,
   getMyProjects,
-  deleteProject
+  deleteProject,
+  getSingleProject      
 } from "../controllers/project.controller.js";
 
-import { ngoMiddleware } from "../middlewares/ngo.middleware.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
-import {upload} from "../middlewares/upload.middleware.js";
+import { ngoMiddleware } from "../middlewares/ngo.middleware.js";
+import { upload } from "../middlewares/upload.middleware.js";
 
 const router = express.Router();
 
-
-router.get("/", ngoMiddleware, getProjects);
-
+router.get("/projects", ngoMiddleware, getProjects);
+router.get("/project/:id", ngoMiddleware, getSingleProject);    
 
 router.post(
   "/project",
   authMiddleware,
-  upload.single("file"), 
+  upload.single("file"),
   createProject
 );
 
-router.get("/admin/project", authMiddleware, getMyProjects);
+router.get("/admin/projects", authMiddleware, getMyProjects);
 
-router.delete("/:id", authMiddleware, deleteProject);
+router.delete("/project/:id", authMiddleware, deleteProject);
 
 export default router;

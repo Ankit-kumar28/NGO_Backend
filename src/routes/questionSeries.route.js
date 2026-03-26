@@ -3,7 +3,8 @@ import {
   createQuestionSeries,
   getQuestionSeries,
   getMyQuestionSeries,
-  deleteQuestionSeries
+  deleteQuestionSeries,
+  getSingleQuestionSeries
 } from "../controllers/questionSeries.controller.js";
 
 import { ngoMiddleware } from "../middlewares/ngo.middleware.js";
@@ -15,7 +16,7 @@ const router = express.Router();
 
 router.get("/question", ngoMiddleware, getQuestionSeries);
 
-
+router.get("/question/:id", ngoMiddleware, getSingleQuestionSeries);
 router.post(
   "/question",
   authMiddleware,        

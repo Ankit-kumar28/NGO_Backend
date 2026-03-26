@@ -16,7 +16,7 @@ const gallerySchema = new mongoose.Schema(
 
     mediaUrl: {
       type: String,
-      required: true, // Cloudinary / S3 URL
+      required: false,
     },
 
     mediaType: {
@@ -27,7 +27,7 @@ const gallerySchema = new mongoose.Schema(
     },
 
     thumbnailUrl: {
-      type: String, // required for video preview (optional for image)
+      type: String, 
     },
     ngo: {
   type: mongoose.Schema.Types.ObjectId,
@@ -36,7 +36,6 @@ const gallerySchema = new mongoose.Schema(
   index: true
 },
 
-    // 👤 Who uploaded
 uploadedBy: {
   type: mongoose.Schema.Types.ObjectId,
   ref: "User"

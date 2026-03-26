@@ -12,7 +12,10 @@ import  knowledgeBaseRoutes from "./routes/knowledgeBase.route.js"
 import applicationRoutes from "./routes/application.routes.js"
 import getInvolvedRoutes from "./routes/getInvolved.routes.js";
 import projectRoutes from "./routes/project.routes.js";
-//create app
+
+import swaggerUi from "swagger-ui-express";
+import swaggerSpec from "../swagger.js";
+
 
 const app=express();
 
@@ -20,6 +23,8 @@ app.use(express.urlencoded({ extended: true }));
 //middleware for json parse
 app.use(express.json());
 
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 //routes
 app.get("/", (req, res) => {
@@ -36,8 +41,7 @@ app.use("/api",eventRoutes);
 app.use("/api",questSeriesRoutes)
 app.use("/api",knowledgeBaseRoutes);
 app.use("/api",applicationRoutes);
-
 app.use("/api/get-involved", getInvolvedRoutes);
-app.use("/api/project",projectRoutes);
+app.use("/api",projectRoutes);
 
 export default app;

@@ -23,7 +23,6 @@ const csrFormSchema = new mongoose.Schema({
   company: String,
   address: String,
 
-  // 🔥 checkbox → array
   activities: [String],
 
   saplings: Number,

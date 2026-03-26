@@ -3,7 +3,8 @@ import {
   createEvent,
   getEvents,
   getMyEvents,
-  deleteEvent
+  deleteEvent,
+  getSingleEvent     // ← Add this
 } from "../controllers/event.controller.js";
 
 import { authMiddleware } from "../middlewares/auth.middleware.js";
@@ -12,12 +13,8 @@ import { upload } from "../middlewares/upload.middleware.js";
 
 const router = express.Router();
 
-router.get(
-  "/events",
-  ngoMiddleware,
-  getEvents
-);
-
+router.get("/events", ngoMiddleware, getEvents);
+router.get("/event/:id", ngoMiddleware, getSingleEvent);        // ← Single Event
 
 router.post(
   "/event",
@@ -26,16 +23,8 @@ router.post(
   createEvent
 );
 
-router.get(
-  "/admin/events",
-  authMiddleware,
-  getMyEvents
-);
+router.get("/admin/events", authMiddleware, getMyEvents);
 
-router.delete(
-  "/event/:id",
-  authMiddleware,
-  deleteEvent
-);
+router.delete("/event/:id", authMiddleware, deleteEvent);
 
 export default router;

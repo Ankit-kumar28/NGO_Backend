@@ -1,27 +1,43 @@
-import  GetInvolved  from "../models/getInvolved.model.js";
+import GetInvolved from "../models/getInvolved.model.js";
 
+// ================= GET GET INVOLVED (Public - with filter) =================
 export const getGetInvolved = async (req, res) => {
   try {
-    const data = await GetInvolved.find({
+    const { type } = req.query;        // Get ?type=membership from query
+
+    let filter = {
       ngo: req.ngo,
       isActive: true
-    }).sort({ order: 1 });
-console.log("check ",req.ngo)
+    };
+
+    // Filter by type if provided (membership, volunteer, internship)
+    if (type) {
+      filter.type = type;
+    }
+
+    const data = await GetInvolved.find(filter)
+      .sort({ createdAt: -1 });   // You can change to "order" if you add order field later
+
+    console.log("GetInvolved fetched for NGO:", req.ngo, "Type:", type);
+
     res.json({
       success: true,
+      count: data.length,
       data
     });
 
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    console.error("Get GetInvolved Error:", error);
+    res.status(500).json({ 
+      success: false,
+      message: "Server error" 
+    });
   }
 };
 
-
+// ================= UPSERT GET INVOLVED =================
 export const upsertGetInvolved = async (req, res) => {
   try {
-
-    console.log("creating getinvolde...")
     const {
       type,
       title,
@@ -30,7 +46,13 @@ export const upsertGetInvolved = async (req, res) => {
       applicationMode,
       externalLink
     } = req.body;
-    console.log(req.body)
+
+    if (!type) {
+      return res.status(400).json({
+        success: false,
+        message: "Type is required (membership, volunteer, or internship)"
+      });
+    }
 
     let image = "";
 
@@ -38,31 +60,40 @@ export const upsertGetInvolved = async (req, res) => {
       image = `/uploads/${req.ngoName}/${req.file.filename}`;
     }
 
-    const data = await GetInvolved.create(
+    // Since you have unique index on (ngo + type), we can use findOneAndUpdate with upsert
+    const data = await GetInvolved.findOneAndUpdate(
+      { 
+        ngo: req.ngoId, 
+        type 
+      },
       {
         ngo: req.ngoId,
         type,
-      
         title,
         description,
         keyPoints: keyPoints ? JSON.parse(keyPoints) : [],
-        applicationMode,
+        applicationMode: applicationMode || "internal",
         externalLink,
-        
+        image,                    // Added image support
+        isActive: true
       },
-    //   {
-    //     new: true,
-    //     upsert: true
-    //   }
+      { 
+        new: true, 
+        upsert: true 
+      }
     );
 
     res.json({
       success: true,
-      message: "Saved successfully",
+      message: "Get Involved section saved successfully",
       data
     });
 
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    res.status(500).json({ 
+      success: false,
+      message: error.message 
+    });
   }
 };

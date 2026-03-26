@@ -4,13 +4,11 @@ import path from "path";
 
 export const createKnowledgeBase = async (req, res) => {
   try {
-    console.log(" Creating knowledgeBase");
+    console.log("Creating knowledgeBase");
 
     const {
       title,
-     
       description,
-     
       keyTopics,
       readTime,
       status,
@@ -36,27 +34,23 @@ export const createKnowledgeBase = async (req, res) => {
       }
     }
 
-    const newKnowledgeBase  = await  knowledgeBase.create({
+    const newKnowledgeBase = await knowledgeBase.create({
       title,
-     
       description,
-      
       keyTopics: keyTopics ? JSON.parse(keyTopics) : [],
       readTime,
       status,
       visibility,
-
       pdfUrl,
-      
-
-      ngo: req.ngoId,       
+      coverImage,          
+      ngo: req.ngoId,
       author: req.user.id
     });
 
     res.status(201).json({
       success: true,
-      message: "knowledgeBase created successfully",
-      data: newKnowledgeBase 
+      message: "Knowledge Base created successfully",
+      data: newKnowledgeBase
     });
 
   } catch (error) {
@@ -65,11 +59,9 @@ export const createKnowledgeBase = async (req, res) => {
   }
 };
 
-
-
 export const getKnowledgeBase = async (req, res) => {
   try {
-    const data = await KnowledgeBase.find({
+    const data = await knowledgeBase.find({          
       ngo: req.ngo,
       visibility: "public",
       status: "published"
@@ -87,11 +79,44 @@ export const getKnowledgeBase = async (req, res) => {
   }
 };
 
+export const getSingleKnowledgeBase = async (req, res) => {
+  try {
+    const { id } = req.params;
 
+    
+    const kb = await knowledgeBase.findOne({
+      _id: id,
+      ngo: req.ngo,
+      visibility: "public",
+      status: "published"
+    });
+
+    if (!kb) {
+      return res.status(404).json({
+        message: "Knowledge Base not found"
+      });
+    }
+
+    kb.views = (kb.views || 0) + 1;
+    await kb.save();
+
+    res.json({
+      success: true,
+      data: kb
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ 
+      success: false,
+      message: "Server error" 
+    });
+  }
+};
 
 export const getMyKnowledgeBase = async (req, res) => {
   try {
-    const data = await KnowledgeBase.find({
+    const data = await knowledgeBase.find({          
       author: req.user.id
     }).sort({ createdAt: -1 });
 
@@ -106,31 +131,30 @@ export const getMyKnowledgeBase = async (req, res) => {
   }
 };
 
-
 export const deleteKnowledgeBase = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const qs = await KnowledgeBase.findOne({
+    const kb = await knowledgeBase.findOne({         
       _id: id,
       author: req.user.id
     });
 
-    if (!qs) {
+    if (!kb) {
       return res.status(404).json({
         message: "Not found or unauthorized"
       });
     }
 
-    if (qs.coverImage) {
-      const imgPath = path.join("public", qs.coverImage);
+    if (kb.coverImage) {
+      const imgPath = path.join("public", kb.coverImage);
       if (fs.existsSync(imgPath)) {
         fs.unlinkSync(imgPath);
       }
     }
 
-    if (qs.pdfUrl) {
-      const pdfPath = path.join("public", qs.pdfUrl);
+    if (kb.pdfUrl) {
+      const pdfPath = path.join("public", kb.pdfUrl);
       if (fs.existsSync(pdfPath)) {
         fs.unlinkSync(pdfPath);
       }

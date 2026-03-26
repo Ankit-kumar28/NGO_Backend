@@ -1,12 +1,11 @@
 import { Blog } from "../models/blog.model.js";
-
 import fs from "fs";
 import path from "path";
 
 // ================= CREATE BLOG =================
 export const createBlog = async (req, res) => {
   try {
-    console.log("👉 Creating Blog");
+    console.log("Creating Blog");
 
     const {
       title,
@@ -19,7 +18,6 @@ export const createBlog = async (req, res) => {
       visibility
     } = req.body;
 
-    // 🔥 FILE HANDLING
     let coverImage = "";
     let pdfUrl = "";
 
@@ -33,7 +31,6 @@ export const createBlog = async (req, res) => {
       }
     }
 
-    // 🔥 CREATE BLOG
     const blog = await Blog.create({
       title,
       content,
@@ -41,13 +38,12 @@ export const createBlog = async (req, res) => {
       contentType,
       discription,
       category,
-      
       status,
       visibility,
       coverImage,
       pdfUrl,
-      ngo: req.ngoId,         // 🔥 multi-tenant
-      author: req.user.id,    // 🔥 admin
+      ngo: req.ngoId,
+      author: req.user.id,
       publishedAt: status === "published" ? new Date() : null
     });
 
@@ -66,7 +62,6 @@ export const createBlog = async (req, res) => {
   }
 };
 
-// ================= PUBLIC BLOGS =================
 export const getBlogs = async (req, res) => {
   try {
     const blogs = await Blog.find({
@@ -86,7 +81,49 @@ export const getBlogs = async (req, res) => {
   }
 };
 
-// ================= ADMIN BLOGS =================
+export const getSingleBlog = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!req.ngo) {
+      return res.status(400).json({
+        success: false,
+        message: "NGO context not found"
+      });
+    }
+
+    const blog = await Blog.findOne({
+      _id: id,
+      ngo: req.ngo,
+      status: "published",
+      visibility: "public"
+    });
+
+    if (!blog) {
+      return res.status(404).json({
+        success: false,
+        message: "Blog not found or not accessible"
+      });
+    }
+
+    // Increment views
+    blog.views = (blog.views || 0) + 1;
+    await blog.save();
+
+    res.json({
+      success: true,
+      data: blog
+    });
+
+  } catch (error) {
+    console.error("Get Single Blog Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+};
+
 export const getMyBlogs = async (req, res) => {
   try {
     const blogs = await Blog.find({
@@ -104,7 +141,6 @@ export const getMyBlogs = async (req, res) => {
   }
 };
 
-// ================= DELETE BLOG =================
 export const deleteBlog = async (req, res) => {
   try {
     const { id } = req.params;
@@ -116,24 +152,18 @@ export const deleteBlog = async (req, res) => {
 
     if (!blog) {
       return res.status(404).json({
-        message: "Blog not found"
+        message: "Blog not found or unauthorized"
       });
     }
 
-    // 🔥 DELETE IMAGE
     if (blog.coverImage) {
       const imgPath = path.join("public", blog.coverImage);
-      if (fs.existsSync(imgPath)) {
-        fs.unlinkSync(imgPath);
-      }
+      if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
     }
 
-    // 🔥 DELETE PDF
     if (blog.pdfUrl) {
       const pdfPath = path.join("public", blog.pdfUrl);
-      if (fs.existsSync(pdfPath)) {
-        fs.unlinkSync(pdfPath);
-      }
+      if (fs.existsSync(pdfPath)) fs.unlinkSync(pdfPath);
     }
 
     await Blog.findByIdAndDelete(id);

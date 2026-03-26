@@ -3,7 +3,7 @@ import slugify from "slugify";
 
 const knowledgeBaseSchema = new mongoose.Schema(
   {
-    // 📝 Title
+   
     title: {
       type: String,
       required: true,

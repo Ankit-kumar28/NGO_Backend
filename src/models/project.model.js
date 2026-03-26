@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import slugify from "slugify";
 
 const projectSchema = new mongoose.Schema(
   {
@@ -9,11 +8,6 @@ const projectSchema = new mongoose.Schema(
       trim: true
     },
 
-    slug: {
-      type: String,
-      unique: true,
-      index: true
-    },
     description: {
       type: String,
       required: true
@@ -32,6 +26,7 @@ const projectSchema = new mongoose.Schema(
         type: String
       }
     ],
+
     pdfUrl: {
       type: String
     },
@@ -57,6 +52,7 @@ const projectSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
+
     ngo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "NGO",
@@ -72,14 +68,5 @@ const projectSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-projectSchema.pre("save", function () {
-  if (this.isModified("title")) {
-    this.slug =
-      slugify(this.title, { lower: true, strict: true }) +
-      "-" +
-      Date.now();
-  }
-});
 
 export const Project = mongoose.model("Project", projectSchema);

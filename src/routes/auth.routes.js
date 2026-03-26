@@ -7,7 +7,6 @@ const router = express.Router();
 // register route
 router.post("/register", register);
 router.post("/login", login);
-// GET all users (protected)
-// router.get("/users", authMiddleware, getAllUsers);
+
 
 export default router;
