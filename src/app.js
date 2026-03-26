@@ -22,9 +22,9 @@ app.use(express.json());
 
 
 //routes
-// app.get('/',(req,res)=>{
-//     res.send("App is running....");
-// });
+app.get("/", (req, res) => {
+  res.send("NGO Backend API is running ");
+});
 app.use("/api/auth", authRoutes);
 app.use("/api/ngo", ngoRoutes);
 app.use("/api",faqRoutes);
