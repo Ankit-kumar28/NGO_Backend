@@ -7,7 +7,7 @@ import fs from 'fs';
 
 export const createGallery = async (req, res) => {
   try {
-    console.log("👉 Upload Gallery");
+    console.log(" Upload Gallery");
 
     const { title, description, mediaType } = req.body;
 
@@ -44,7 +44,7 @@ export const createGallery = async (req, res) => {
 
 export const getGallery = async (req, res) => {
   try {
-    console.log("👉 Fetch gallery for NGO:", req.ngoName);
+    console.log("Fetch gallery for NGO:", req.ngoName);
 
     const gallery = await Gallery.find({ ngo: req.ngo })
       .sort({ createdAt: -1 });
