@@ -1,41 +1,41 @@
-# 🔒 Environment variables
+#  Environment variables
 .env
 .env.*
 !.env.example
 
-# 📦 Node modules
+# Node modules
 node_modules/
 
-# 📝 Logs
+# Logs
 logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# 🗂️ OS files
+# OS files
 .DS_Store
 Thumbs.db
 
-# 🧪 Testing
+#  Testing
 coverage/
 
-# ⚙️ Build files
+#  Build files
 dist/
 build/
 
-# 📁 Uploads (important for your project)
+#  Uploads (important for your project)
 public/uploads/
 public/images/
 
-# 🗃️ Database files (if any local)
+#  Database files (if any local)
 *.sqlite
 *.db
 
-# 🔑 Secrets
+#  Secrets
 config/secrets.json
 
-# 🧹 Misc
+#  Misc
 *.tmp
 *.temp
 .cache
