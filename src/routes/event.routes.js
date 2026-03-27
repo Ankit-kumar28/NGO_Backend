@@ -4,7 +4,7 @@ import {
   getEvents,
   getMyEvents,
   deleteEvent,
-  getSingleEvent     // ← Add this
+  getSingleEvent,
 } from "../controllers/event.controller.js";
 
 import { authMiddleware } from "../middlewares/auth.middleware.js";
@@ -14,17 +14,16 @@ import { upload } from "../middlewares/upload.middleware.js";
 const router = express.Router();
 
 router.get("/events", ngoMiddleware, getEvents);
-router.get("/event/:id", ngoMiddleware, getSingleEvent);        // ← Single Event
+router.get("/event/:id", ngoMiddleware, getSingleEvent);
 
 router.post(
   "/event",
   authMiddleware,
-  upload.single("file"),  
+  upload.single("image"),   
   createEvent
 );
 
 router.get("/admin/events", authMiddleware, getMyEvents);
-
 router.delete("/event/:id", authMiddleware, deleteEvent);
 
 export default router;

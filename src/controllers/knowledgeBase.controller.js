@@ -1,173 +1,244 @@
-import { knowledgeBase } from "../models/knowledgeBase.model.js";
+// controllers/knowledgeBase.controller.js
+import { KnowledgeBase } from "../models/knowledgeBase.model.js";
 import fs from "fs";
 import path from "path";
 
+const deleteFile = (filePath) => {
+  if (!filePath) return;
+  const abs = path.join("public", filePath);
+  if (fs.existsSync(abs)) fs.unlinkSync(abs);
+};
+
 export const createKnowledgeBase = async (req, res) => {
   try {
-    console.log("Creating knowledgeBase");
-
     const {
       title,
+      subtitle,
       description,
-      keyTopics,
+      tag,
+      highlights,         
       readTime,
+      order,
+     
+      tagColorPill,
+      tagColorDot,
+      tagColorText,
+      tagColorBorder,
+      tagColorHover,
+      tagColorAccent,
+      tagColorLight,
+      // control
       status,
-      visibility
+      visibility,
+      isFeatured,
     } = req.body;
 
     if (!req.user || !req.ngoId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (!title || !description) {
       return res.status(400).json({
-        message: "NGO or Admin not found"
+        message: "title and description are required",
       });
     }
 
-    let pdfUrl = "";
+    let pdfUrl     = "";
     let coverImage = "";
 
     if (req.file) {
       const filePath = `/uploads/${req.ngoName}/${req.file.filename}`;
-
       if (req.file.mimetype === "application/pdf") {
         pdfUrl = filePath;
       } else {
         coverImage = filePath;
       }
     }
-
-    const newKnowledgeBase = await knowledgeBase.create({
+    const kb = await KnowledgeBase.create({
       title,
+      subtitle,
       description,
-      keyTopics: keyTopics ? JSON.parse(keyTopics) : [],
-      readTime,
-      status,
-      visibility,
+      tag,
+      tagColor: {
+        pill:   tagColorPill,
+        dot:    tagColorDot,
+        text:   tagColorText,
+        border: tagColorBorder,
+        hover:  tagColorHover,
+        accent: tagColorAccent,
+        light:  tagColorLight,
+      },
+      highlights:  highlights ? JSON.parse(highlights) : [],
+      readTime:    readTime   ? Number(readTime)        : undefined,
+      order:       order      ? Number(order)           : 0,
       pdfUrl,
-      coverImage,          
-      ngo: req.ngoId,
-      author: req.user.id
+      coverImage,
+      status:      status     || "published",
+      visibility:  visibility || "public",
+      isFeatured:  isFeatured === "true" || isFeatured === true,
+      ngo:         req.ngoId,
+      createdBy:   req.user.id,            
     });
 
     res.status(201).json({
       success: true,
       message: "Knowledge Base created successfully",
-      data: newKnowledgeBase
+      data: kb,
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("createKnowledgeBase:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateKnowledgeBase = async (req, res) => {
+  try {
+    const kb = await KnowledgeBase.findOne({
+      _id: req.params.id,
+      ngo: req.ngoId,
+    });
+
+    if (!kb) {
+      return res.status(404).json({ message: "Not found or unauthorized" });
+    }
+
+    const {
+      title, subtitle, description, tag, highlights,
+      readTime, order, status, visibility, isFeatured,
+      tagColorPill, tagColorDot, tagColorText,
+      tagColorBorder, tagColorHover, tagColorAccent, tagColorLight,
+    } = req.body;
+
+    if (req.file) {
+      const filePath = `/uploads/${req.ngoName}/${req.file.filename}`;
+      if (req.file.mimetype === "application/pdf") {
+        deleteFile(kb.pdfUrl);
+        kb.pdfUrl = filePath;
+      } else {
+        deleteFile(kb.coverImage);
+        kb.coverImage = filePath;
+      }
+    }
+
+    if (title)       kb.title       = title;
+    if (subtitle)    kb.subtitle    = subtitle;
+    if (description) kb.description = description;
+    if (tag)         kb.tag         = tag;
+    if (highlights)  kb.highlights  = JSON.parse(highlights);
+    if (readTime  !== undefined) kb.readTime  = Number(readTime);
+    if (order     !== undefined) kb.order     = Number(order);
+    if (status)      kb.status      = status;
+    if (visibility)  kb.visibility  = visibility;
+    if (isFeatured !== undefined)
+      kb.isFeatured = isFeatured === "true" || isFeatured === true;
+
+    if (tagColorPill)   kb.tagColor.pill   = tagColorPill;
+    if (tagColorDot)    kb.tagColor.dot    = tagColorDot;
+    if (tagColorText)   kb.tagColor.text   = tagColorText;
+    if (tagColorBorder) kb.tagColor.border = tagColorBorder;
+    if (tagColorHover)  kb.tagColor.hover  = tagColorHover;
+    if (tagColorAccent) kb.tagColor.accent = tagColorAccent;
+    if (tagColorLight)  kb.tagColor.light  = tagColorLight;
+
+    await kb.save();
+
+    res.json({ success: true, message: "Updated successfully", data: kb });
+
+  } catch (error) {
+    console.error("updateKnowledgeBase:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
 export const getKnowledgeBase = async (req, res) => {
   try {
-    const data = await knowledgeBase.find({          
-      ngo: req.ngo,
+    const filter = {
+      ngo:        req.ngo,          
       visibility: "public",
-      status: "published"
-    }).sort({ createdAt: -1 });
+      status:     "published",
+    };
 
-    res.json({
-      success: true,
-      data
-    });
+    if (req.query.tag) filter.tag = req.query.tag;
+
+    const data = await KnowledgeBase
+      .find(filter)
+      .select("-createdBy -__v");
+      
+
+    res.json({ success: true, count: data.length, data });
 
   } catch (error) {
-    res.status(500).json({
-      message: "Server error"
-    });
+    console.error("getKnowledgeBase:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
 export const getSingleKnowledgeBase = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    
-    const kb = await knowledgeBase.findOne({
-      _id: id,
-      ngo: req.ngo,
-      visibility: "public",
-      status: "published"
-    });
+    const kb = await KnowledgeBase.findOneAndUpdate(
+      {
+        _id:        req.params.id,
+        ngo:        req.ngo,
+        visibility: "public",
+        status:     "published",
+      },
+      { $inc: { views: 1 } },      
+      { new: true }
+    ).select("-createdBy -__v");
 
     if (!kb) {
-      return res.status(404).json({
-        message: "Knowledge Base not found"
-      });
+      return res.status(404).json({ message: "Knowledge Base not found" });
     }
 
-    kb.views = (kb.views || 0) + 1;
-    await kb.save();
-
-    res.json({
-      success: true,
-      data: kb
-    });
+    res.json({ success: true, data: kb });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ 
-      success: false,
-      message: "Server error" 
-    });
+    console.error("getSingleKnowledgeBase:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
 export const getMyKnowledgeBase = async (req, res) => {
   try {
-    const data = await knowledgeBase.find({          
-      author: req.user.id
-    }).sort({ createdAt: -1 });
+    const filter = { ngo: req.ngoId };   
 
-    res.json({
-      success: true,
-      count: data.length,
-      data
-    });
+    if (req.query.status)     filter.status     = req.query.status;
+    if (req.query.visibility) filter.visibility = req.query.visibility;
+    if (req.query.tag)        filter.tag        = req.query.tag;
+
+    const data = await KnowledgeBase
+      .find(filter)
+      .sort({ order: 1, createdAt: -1 });
+
+    res.json({ success: true, count: data.length, data });
 
   } catch (error) {
+    console.error("getMyKnowledgeBase:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
 export const deleteKnowledgeBase = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const kb = await knowledgeBase.findOne({         
-      _id: id,
-      author: req.user.id
+    const kb = await KnowledgeBase.findOne({
+      _id:  req.params.id,
+      ngo:  req.ngoId,               
     });
 
     if (!kb) {
-      return res.status(404).json({
-        message: "Not found or unauthorized"
-      });
+      return res.status(404).json({ message: "Not found or unauthorized" });
     }
 
-    if (kb.coverImage) {
-      const imgPath = path.join("public", kb.coverImage);
-      if (fs.existsSync(imgPath)) {
-        fs.unlinkSync(imgPath);
-      }
-    }
+    deleteFile(kb.coverImage);
+    deleteFile(kb.pdfUrl);
 
-    if (kb.pdfUrl) {
-      const pdfPath = path.join("public", kb.pdfUrl);
-      if (fs.existsSync(pdfPath)) {
-        fs.unlinkSync(pdfPath);
-      }
-    }
+    await KnowledgeBase.findByIdAndDelete(req.params.id);
 
-    await knowledgeBase.findByIdAndDelete(id);
-
-    res.json({
-      success: true,
-      message: "Deleted successfully"
-    });
+    res.json({ success: true, message: "Deleted successfully" });
 
   } catch (error) {
+    console.error("deleteKnowledgeBase:", error);
     res.status(500).json({ message: "Server error" });
   }
 };

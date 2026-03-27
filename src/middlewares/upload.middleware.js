@@ -1,40 +1,3 @@
-// import multer from "multer";
-// import fs from "fs";
-
-// const storage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     try {
-      
-      
-
-// console.log("ngo:--",req.ngoName);
-// // const ngoFolderName = req.ngoCode || "default";
-// const ngoFolderName = req.ngoName || "default";
-
-
-//       const uploadPath = `public/uploads/${ngoFolderName}`;
-
-//       // create folder if not exists
-//       if (!fs.existsSync(uploadPath)) {
-//         fs.mkdirSync(uploadPath, { recursive: true });
-//       }
-
-//       cb(null, uploadPath);
-
-//     } catch (error) {
-//       cb(error, null);
-//     }
-//   },
-
-//   filename: (req, file, cb) => {
-//     const uniqueName = Date.now() + "-" + file.originalname;
-//     cb(null, uniqueName);
-//   }
-// });
-
-// export const upload = multer({ storage });
-
-
 import multer from "multer";
 import fs from "fs";
 import ngoModel from "../models/ngo.model.js";
@@ -78,17 +41,28 @@ const storage = multer.diskStorage({
 
 
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = [
+  const allowedMimeTypes = [
+    
     "image/jpeg",
-    "image/png",
     "image/jpg",
+    "image/png",
+    "image/webp",
+    "image/heic",
+    "image/heif",
+    "image/avif",
+    
+    "video/mp4",
+    "video/webm",
+    "video/quicktime",   
+    
     "application/pdf"
   ];
 
-  if (allowedTypes.includes(file.mimetype)) {
+  if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error("Only images and PDFs allowed"), false);
+    console.log(`Rejected file type: ${file.mimetype} - ${file.originalname}`);
+    cb(new Error(`Only images, videos, and PDFs are allowed. Received: ${file.mimetype}`), false);
   }
 };
 

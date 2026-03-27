@@ -1,4 +1,6 @@
 import express from 'express'
+import cors from "cors";
+
 import authRoutes from "./routes/auth.routes.js";
 import ngoRoutes from "./routes/ngo.routes.js";
 import faqRoutes from "./routes/faq.routes.js";
@@ -9,24 +11,26 @@ import blogRoutes from "./routes/blog.routes.js"
 import eventRoutes from "./routes/event.routes.js"
 import  questSeriesRoutes from "./routes/questionSeries.route.js"
 import  knowledgeBaseRoutes from "./routes/knowledgeBase.route.js"
-import applicationRoutes from "./routes/application.routes.js"
+
 import getInvolvedRoutes from "./routes/getInvolved.routes.js";
 import projectRoutes from "./routes/project.routes.js";
+import donateRoutes from "./routes/donation.route.js"
 
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "../swagger.js";
 
 
 const app=express();
+app.use(cors());
 
 app.use(express.urlencoded({ extended: true }));
-//middleware for json parse
-app.use(express.json());
 
+
+app.use(express.json());
+app.use("/uploads", express.static("public/uploads"));
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-//routes
 app.get("/", (req, res) => {
   res.send("NGO Backend API is running ");
 });
@@ -40,8 +44,8 @@ app.use("/api",blogRoutes);
 app.use("/api",eventRoutes);
 app.use("/api",questSeriesRoutes)
 app.use("/api",knowledgeBaseRoutes);
-app.use("/api",applicationRoutes);
-app.use("/api/get-involved", getInvolvedRoutes);
+app.use("/api", getInvolvedRoutes);
 app.use("/api",projectRoutes);
+app.use("/api",donateRoutes);
 
 export default app;

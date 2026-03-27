@@ -3,7 +3,7 @@ import FAQ from "../models/faq.model.js";
 
 export const createFAQ = async (req, res) => {
   try {
-    console.log("👉 Create FAQ API called");
+    console.log(" Create FAQ API called");
 
     const { question, answer, category } = req.body;
 
@@ -14,7 +14,6 @@ export const createFAQ = async (req, res) => {
       });
     }
 
-    // Security: Use NGO from JWT only (most secure)
     const faq = await FAQ.create({
       question: question.trim(),
       answer: answer.trim(),
@@ -40,13 +39,12 @@ export const createFAQ = async (req, res) => {
   }
 };
 
-// controllers/faq.controller.js
 
 export const getFAQs = async (req, res) => {
   try {
-    console.log("👉 GET FAQ API called");
+    console.log("GET FAQ API called");
 
-    // 🔥 NGO comes from middleware
+   
     const ngoId = req.ngo;
 
     const faqs = await FAQ.find({
@@ -54,7 +52,7 @@ export const getFAQs = async (req, res) => {
       isActive: true
     }).sort({ createdAt: -1 });
 
-    console.log("✅ FAQs fetched for NGO:", ngoId);
+    console.log("FAQs fetched for NGO:", ngoId);
 
     res.json({
       success: true,
@@ -74,13 +72,12 @@ export const getFAQs = async (req, res) => {
 
 export const deleteFAQ = async (req, res) => {
   try {
-    console.log("👉 DELETE FAQ API called");
+    console.log(" DELETE FAQ API called");
 
     const { id } = req.params;
 
-    // Find FAQ
     const faq = await FAQ.findById(id);
-    console.log("👉 FAQ:", faq);
+    console.log(" FAQ:", faq);
 
     if (!faq) {
       return res.status(404).json({

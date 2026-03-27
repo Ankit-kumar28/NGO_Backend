@@ -17,7 +17,7 @@ export const createGallery = async (req, res) => {
       });
     }
 
-    const filePath = `/${req.file.filename}`;
+    const filePath = `/uploads/${req.ngoName || "default"}/${req.file.filename}`;
 
     const gallery = await Gallery.create({
       title,

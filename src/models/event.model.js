@@ -2,55 +2,89 @@ import mongoose from "mongoose";
 
 const eventSchema = new mongoose.Schema(
   {
+    // BASIC INFO
     title: {
       type: String,
       required: true,
       trim: true,
     },
 
-    description: {
+    subtitle: {
       type: String,
-      required: false,
+      trim: true,
     },
 
-    posterImage: {
+    topics: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
+
+    // DATE & TIME
+    date: {
+      type: String,
+      required: true,
+    },
+
+    startTime: {
+      type: String,
+      required: true,
+    },
+
+    endTime: {
       type: String,
     },
+
+    month: {
+      type: Number,
+      index: true,
+    },
+
+    year: {
+      type: Number,
+      index: true,
+    },
+
+    // MEDIA
+    image: {
+      type: String,
+    },
+
     pdfUrl: {
       type: String,
     },
 
-    location: {
-      type: String,
-      trim: true,
-    },
-
-    city: {
-      type: String,
-      trim: true,
-      index: true,
-    },
-
-    state: {
-      type: String,
-      trim: true,
-    },
-
-    startDate: {
-      type: Date,
-      index: true,
-    },
-
-    endDate: {
-      type: Date,
-    },
-
-    startTime: String,
-    endTime: String,
-
+    // LINKS
     registrationLink: {
       type: String,
     },
+    badge:{
+      type: String,
+    },
+     badgeColor:{
+      type: String,
+     },
+
+    // STATUS
+    // status: {
+    //   type: String,
+    //   enum: ["upcoming", "ongoing", "completed", "cancelled"],
+    //   default: "upcoming",
+    // },
+
+    visibility: {
+      type: String,
+      enum: ["public", "private", "draft"],
+      default: "public",
+    },
+
+    isFeatured: {
+      type: Boolean,
+      default: false,
+    },
+
+    // RELATIONS
     ngo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "NGO",
@@ -63,34 +97,6 @@ const eventSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-
-    status: {
-      type: String,
-      enum: ["upcoming", "ongoing", "completed"],
-      default: "upcoming",
-      index: true,
-    },
-
-    visibility: {
-      type: String,
-      enum: ["public", "private"],
-      default: "public",
-    },
-    isFeatured: {
-      type: Boolean,
-      default: false,
-    },
-    views: {
-      type: Number,
-      default: 0,
-    },
-
-    tags: [
-      {
-        type: String,
-        trim: true,
-      }
-    ],
   },
   {
     timestamps: true,

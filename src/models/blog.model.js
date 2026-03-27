@@ -14,7 +14,7 @@ const blogSchema = new mongoose.Schema(
     contentType: {
       type: String,
       enum: ["internal", "external"],
-      default: "internal",
+      default: "external",
       required: true,
     },
 
@@ -27,7 +27,7 @@ const blogSchema = new mongoose.Schema(
       type: String,
       default:""
     },
-    discription: {
+    excerpt: {
       type: String,
       maxlength: 300,
       trim: true,
@@ -38,7 +38,15 @@ const blogSchema = new mongoose.Schema(
       type: String, 
       default:""
     },
-
+date: {
+  type: Number
+},
+month: {
+  type: Number
+},
+year: {
+  type: Number
+},
     pdfUrl: {
       type: String, 
       default:""
@@ -89,9 +97,10 @@ const blogSchema = new mongoose.Schema(
         type:String,
         default:"Linkedin"
     },
-    readTime: {
-      type: Number,
-      default:5
+   readTime: {
+  type: Number,
+  default: 5,
+  min: 1,
     },
 
     views: {

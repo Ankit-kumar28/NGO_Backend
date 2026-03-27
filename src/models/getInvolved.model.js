@@ -1,3 +1,4 @@
+// models/getInvolved.model.js
 import mongoose from "mongoose";
 
 const getInvolvedSchema = new mongoose.Schema(
@@ -15,21 +16,85 @@ const getInvolvedSchema = new mongoose.Schema(
       required: true
     },
 
-    applicationMode: {
+    // ── Common Fields ──────────────────────────────
+    name: {
       type: String,
-      enum: ["internal", "external"],
-      default: "internal"
+      required: true,
+      trim: true
+    },
+    email: {
+      type: String,
+      required: true,
+      trim: true,
+      lowercase: true
+    },
+    phone: {
+      type: String,
+      trim: true
+    },
+    profession: {
+      type: String,
+      trim: true
+    },
+    message: {
+      type: String,
+      trim: true
     },
 
-    externalLink: String,
+    // ── Membership-only ────────────────────────────
+    membershipType: {
+      type: String,
+      enum: [
+        "Patient",
+        "Caregiver / Family Member",
+        "Doctor / Clinician",
+        "Researcher / Scientist",
+        "Student",
+        "Volunteer",
+        "NGO Representative",
+        "Pharmaceutical Company / Industry Professional",
+        "Regulator / Policy Maker",
+        "Technology Partner / Digital Health",
+        "Other"
+      ]
+    },
+    otherMembershipType: {
+      type: String,
+      trim: true  // used when membershipType === "Other"
+    },
 
-    isActive: {
-      type: Boolean,
-      default: true
+    // ── Volunteer-only ─────────────────────────────
+    area: {
+      type: String,
+      enum: [
+        "Awareness Campaigns",
+        "Patient Support",
+        "Event Assistance",
+        "Fundraising",
+        "Social Media & Outreach"
+      ]
+    },
+
+    // ── Internship-only ────────────────────────────
+    college: {
+      type: String,
+      trim: true
+    },
+    resumePath: {
+      type: String,  // stores file path like "uploads/resumes/filename.pdf"
+      trim: true
+    },
+
+    // ── Status (all types) ─────────────────────────
+    status: {
+      type: String,
+      enum: ["new", "reviewed", "accepted", "rejected"],
+      default: "new"
     }
   },
-  { timestamps: true }
+  {
+    timestamps: true
+  }
 );
-
 
 export default mongoose.model("GetInvolved", getInvolvedSchema);

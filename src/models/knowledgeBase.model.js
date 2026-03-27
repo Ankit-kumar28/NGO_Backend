@@ -1,71 +1,76 @@
+// models/knowledgeBase.model.js
 import mongoose from "mongoose";
-import slugify from "slugify";
 
 const knowledgeBaseSchema = new mongoose.Schema(
   {
-   
     title: {
       type: String,
-      required: true,
+      required: [true, "Title is required"],
       trim: true,
     },
-    slug: {
-      type: String,
-      unique: true,
-      index: true,
-    },
-
     subtitle: {
       type: String,
       trim: true,
     },
-
     description: {
       type: String,
-      required: true,
+      required: [true, "Description is required"],
+      trim: true,
     },
 
-    category: {
+    tag: {
       type: String,
       trim: true,
       index: true,
     },
 
-    tags: [
+    tagColor: {
+      pill:    { type: String, trim: true },  
+      dot:     { type: String, trim: true }, 
+      text:    { type: String, trim: true },  
+      border:  { type: String, trim: true },  
+      hover:   { type: String, trim: true },  
+      accent:  { type: String, trim: true },  
+      light:   { type: String, trim: true },  
+    },
+
+    highlights: [
       {
         type: String,
         trim: true,
-      }
+      },
     ],
 
-    keyTopics: [
-      {
-        type: String,
-        trim: true,
-      }
-    ],
+    pdfUrl: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    coverImage: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
     readTime: {
       type: Number,
     },
-
-    pdfUrl: {
-      type: String, 
-    },
-
-    coverImage: {
-      type: String,
+    order: {
+      type: Number,
+      default: 0,
+      index: true,
     },
 
     ngo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "NGO",
-      required: true,
+      required: [true, "NGO is required"],
       index: true,
     },
-    author: {
+    createdBy: {                              
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: [true, "Creator is required"],
     },
 
     status: {
@@ -74,13 +79,17 @@ const knowledgeBaseSchema = new mongoose.Schema(
       default: "published",
       index: true,
     },
-
     visibility: {
       type: String,
       enum: ["public", "private"],
       default: "public",
+      index: true,
     },
-
+    isFeatured: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
     views: {
       type: Number,
       default: 0,
@@ -91,19 +100,16 @@ const knowledgeBaseSchema = new mongoose.Schema(
   }
 );
 
+// ── COMPOUND INDEX ─────────────────────────────────────────────
+// knowledgeBaseSchema.index({
+//   ngo:        1,
+//   status:     1,
+//   visibility: 1,
+//   order:      1,
+// });
 
 
- knowledgeBaseSchema.pre("save", function () {
-  if (this.isModified("title")) {
-    this.slug =
-      slugify(this.title, { lower: true, strict: true }) +
-      "-" +
-      Date.now();
-  }
-});
-
-
-export const knowledgeBase = mongoose.model(
-  " KnowledgeBase",
-   knowledgeBaseSchema
+export const KnowledgeBase = mongoose.model(
+  "KnowledgeBase",
+  knowledgeBaseSchema
 );

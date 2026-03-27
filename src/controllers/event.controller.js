@@ -1,192 +1,215 @@
 import { Event } from "../models/event.model.js";
+import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";
 
-// ================= CREATE EVENT =================
 export const createEvent = async (req, res) => {
   try {
-    console.log("👉 Creating Event");
+    console.log(" Creating Event");
 
     const {
       title,
-      description,
-      startDate,
-      endDate,
+      subtitle,
+      topics,
+      date,
       startTime,
       endTime,
       registrationLink,
-      location,
-      city,
-      state,
-      status,
+      badge,
+      badgeColor,
+      month,
+      year,
+      
       visibility,
       isFeatured,
-      tags
     } = req.body;
 
-    let posterImage = "";
+    let image = "";
     let pdfUrl = "";
 
     if (req.file) {
-      const filePath = `/uploads/${req.ngoName}/${req.file.filename}`;
-
+      const filePath = `/uploads/${req.ngoName || "default"}/${req.file.filename}`;
       if (req.file.mimetype === "application/pdf") {
         pdfUrl = filePath;
       } else {
-        posterImage = filePath;
+        image = filePath;
       }
     }
 
+    // let parsedTopics = [];
+    // if (topics) {
+    //   try {
+    //     parsedTopics = JSON.parse(topics);
+    //   } catch (err) {
+    //     console.warn("Failed to parse topics:", err.message);
+    //   }
+    // }
+
     const event = await Event.create({
       title,
-      description,
-      startDate,
-      endDate,
+      subtitle,
+      topics,
+      date,
       startTime,
       endTime,
       registrationLink,
-      location,
-      city,
-      state,
-      status,
-      visibility,
-      isFeatured,
-      tags: tags ? JSON.parse(tags) : [],
+      badge,
+      badgeColor,
+      
+      visibility: visibility || "public",
+      isFeatured: isFeatured === "true" || isFeatured === true,
       ngo: req.ngoId,
       createdBy: req.user.id,
-      posterImage,
-      pdfUrl
+      image,
+      pdfUrl,
+      month: month ? Number(month) : undefined,
+      year: year ? Number(year) : undefined,
     });
 
     res.status(201).json({
       success: true,
       message: "Event created successfully",
-      data: event
+      data: event,
     });
-
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ 
+    console.error("Create Event Error:", error);
+    res.status(500).json({
       success: false,
-      message: error.message 
+      message: error.message || "Failed to create event",
     });
   }
 };
 
-// ================= PUBLIC EVENTS =================
 export const getEvents = async (req, res) => {
   try {
-    const events = await Event.find({
-      ngo: req.ngo,
-      visibility: "public"
-    }).sort({ startDate: -1 });
+    const { ngo } = req;
+
+    if (!ngo) {
+      return res.status(400).json({
+        success: false,
+        message: "NGO context not found",
+      });
+    }
+
+    const events = await Event.find({ ngo, visibility: "public" })
+      .select("-__v")
+      .sort({ createdAt: -1 });
 
     res.json({
       success: true,
       count: events.length,
-      data: events
+      data: events,
     });
-
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    console.error("Get Events Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching events",
+    });
   }
 };
 
-// ✅ NEW: GET SINGLE EVENT
 export const getSingleEvent = async (req, res) => {
   try {
     const { id } = req.params;
+    const { ngo } = req;
 
-    if (!req.ngo) {
+    if (!ngo) {
       return res.status(400).json({
         success: false,
-        message: "NGO context not found"
+        message: "NGO context not found",
       });
     }
 
-    const event = await Event.findOne({
-      _id: id,
-      ngo: req.ngo,
-      visibility: "public"
-    });
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid event ID",
+      });
+    }
+
+    const event = await Event.findOne({ _id: id, ngo, visibility: "public" });
 
     if (!event) {
       return res.status(404).json({
         success: false,
-        message: "Event not found"
+        message: "Event not found",
       });
     }
 
-    // Increment views
-    event.views = (event.views || 0) + 1;
-    await event.save();
-
     res.json({
       success: true,
-      data: event
+      data: event,
     });
-
   } catch (error) {
     console.error("Get Single Event Error:", error);
     res.status(500).json({
       success: false,
-      message: "Server error"
+      message: "Server error",
     });
   }
 };
 
-// ================= ADMIN EVENTS =================
 export const getMyEvents = async (req, res) => {
   try {
-    const events = await Event.find({
-      createdBy: req.user.id
-    }).sort({ createdAt: -1 });
+    const events = await Event.find({ createdBy: req.user.id })
+      .select("-__v")
+      .sort({ createdAt: -1 });
 
     res.json({
       success: true,
       count: events.length,
-      data: events
+      data: events,
     });
-
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    console.error("Get My Events Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 
-// ================= DELETE EVENT =================
 export const deleteEvent = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const event = await Event.findOne({
-      _id: id,
-      createdBy: req.user.id
-    });
+    const event = await Event.findOne({ _id: id, createdBy: req.user.id });
 
     if (!event) {
       return res.status(404).json({
-        message: "Event not found or unauthorized"
+        success: false,
+        message: "Event not found or unauthorized",
       });
     }
 
-    if (event.posterImage) {
-      const imgPath = path.join("public", event.posterImage);
-      if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
-    }
+    const deleteFile = (filePath) => {
+      if (!filePath) return;
+      const fullPath = path.join("public", filePath);
+      if (fs.existsSync(fullPath)) {
+        try {
+          fs.unlinkSync(fullPath);
+          console.log(`Deleted file: ${fullPath}`);
+        } catch (err) {
+          console.warn(`Failed to delete file ${fullPath}:`, err.message);
+        }
+      }
+    };
 
-    if (event.pdfUrl) {
-      const pdfPath = path.join("public", event.pdfUrl);
-      if (fs.existsSync(pdfPath)) fs.unlinkSync(pdfPath);
-    }
+    deleteFile(event.image);
+    deleteFile(event.pdfUrl);
 
     await Event.findByIdAndDelete(id);
 
     res.json({
       success: true,
-      message: "Event deleted successfully"
+      message: "Event deleted successfully",
     });
-
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    console.error("Delete Event Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while deleting event",
+    });
   }
 };

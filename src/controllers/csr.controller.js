@@ -43,7 +43,6 @@ export const getCSRForms = async (req, res) => {
 
     const filter = { ngo: req.user.ngoId };
 
-    // optional filters
     if (status) filter.status = status;
     if (volunteering) filter.volunteering = volunteering;
 
@@ -84,7 +83,6 @@ export const updateCSRStatus = async (req, res) => {
       });
     }
 
-    // ngoId check → prevents one NGO admin from touching another NGO's data
     const form = await CSRForm.findOneAndUpdate(
       { _id: id, ngo: req.user.ngoId },
       { status },

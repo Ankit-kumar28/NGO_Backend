@@ -48,8 +48,8 @@ export const getContacts = async (req, res) => {
     //   ngo: req.user.ngo
     // });
 
-    const contacts = await Contact.find({ ngo: req.user.ngoId });
-    console.log("📦 contacts found:", contacts.length);
+    const contacts = await Contact.find({ ngo: req.user.ngoId }).sort({ createdAt: -1 });
+   
 
     res.json({
       success: true,
