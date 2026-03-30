@@ -15,7 +15,7 @@ const options = {
         url: "http://localhost:5000",
       },
       {
-        url: "https://ngo-backend-f73r.onrender.com", // production
+        url: "https://ngo-backend-f73r.onrender.com", 
       },
     ],
     components: {
@@ -29,7 +29,7 @@ const options = {
 },
   },
 
-  apis: ["./src/routes/*.js"], // VERY IMPORTANT
+  apis: ["./src/routes/*.js"],
 };
 
 const swaggerSpec = swaggerJSDoc(options);
