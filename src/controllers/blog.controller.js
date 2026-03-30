@@ -1,7 +1,24 @@
 import { Blog } from "../models/blog.model.js";
 import fs from "fs";
 import path from "path";
+import sanitizeHtml from 'sanitize-html';
 
+const sanitizeOptions = {
+  allowedTags: [
+    "h1", "h2", "h3", "h4", "h5", "h6", "p", "br", "strong", "em", "u",
+    "ul", "ol", "li", "blockquote", "a", "img", "div", "span",
+    "table", "thead", "tbody", "tr", "th", "td", "hr", 
+    "style", "header", "section", "footer", "article" 
+  ],
+  allowedAttributes: {
+    a: ["href", "target", "rel"],
+    img: ["src", "alt", "width", "height"],
+    "*": ["class", "style"] 
+  },
+ 
+  allowVulnerableTags: true, 
+  disallowedTagsMode: "discard",
+};
 
 export const createBlog = async (req, res) => {
   try {
@@ -18,10 +35,16 @@ export const createBlog = async (req, res) => {
       visibility = "public",
       source = "LinkedIn",
       readTime,       
-      date,
+     
       month,
       year,
     } = req.body;
+
+    let finalContent = content || "";
+    if (contentType === "internal" && finalContent) {
+      finalContent = sanitizeHtml(finalContent, sanitizeOptions);
+      console.log(" Internal content sanitized");
+    }
 
     let coverImage = "";
     let pdfUrl = "";
@@ -35,19 +58,10 @@ export const createBlog = async (req, res) => {
       }
     }
 
-    let finalReadTime = 5; 
-
-    if (readTime !== undefined && readTime !== null) {
-      finalReadTime = Number(readTime);  
-
-      if (isNaN(finalReadTime) || finalReadTime < 1) {
-        finalReadTime = 5;
-      }
-    }
-
+ 
     const blog = await Blog.create({
       title,
-      content,
+      content: finalContent,           
       externalUrl,
       contentType,
       excerpt,
@@ -55,8 +69,8 @@ export const createBlog = async (req, res) => {
       status,
       visibility,
       source,
-      readTime: finalReadTime,       
-      date: date ? Number(date) : undefined,
+      readTime,      
+      
       month: month ? Number(month) : undefined,
       year: year ? Number(year) : undefined,
       coverImage,
@@ -81,6 +95,7 @@ export const createBlog = async (req, res) => {
   }
 };
 
+
 export const getBlogs = async (req, res) => {
   try {
     const blogs = await Blog.find({
@@ -88,7 +103,7 @@ export const getBlogs = async (req, res) => {
       status: "published",
       visibility: "public",
     })
-      .sort({ year: -1, month: -1, date: -1, createdAt: -1 }) ;
+      .sort({  createdAt: -1 }) ;
       
 
     res.json({

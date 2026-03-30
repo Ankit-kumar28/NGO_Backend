@@ -58,7 +58,7 @@ export const createGetInvolved = async (req, res) => {
           message: "Resume file is required for internship form"
         });
       }
-      resumePath = `/uploads/${req.ngoName || "default"}/${req.file.filename}`; // e.g. "uploads/resumes/filename.pdf"
+      resumePath = `/uploads/${req.ngoName || "default"}/${req.file.filename}`; 
     }
 
     const entry = await GetInvolved.create({

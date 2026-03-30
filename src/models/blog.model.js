@@ -92,6 +92,10 @@ year: {
       default: "public",
     },
     
+     isFeatured: {
+      type: Boolean,
+      default: false,
+    },
 
     source:{
         type:String,
@@ -99,8 +103,7 @@ year: {
     },
    readTime: {
   type: Number,
-  default: 5,
-  min: 1,
+
     },
 
     views: {

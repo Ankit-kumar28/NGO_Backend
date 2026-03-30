@@ -13,21 +13,12 @@ export const createKnowledgeBase = async (req, res) => {
   try {
     const {
       title,
-      subtitle,
       description,
       tag,
-      highlights,         
+      highlights,
       readTime,
       order,
-     
-      tagColorPill,
-      tagColorDot,
-      tagColorText,
-      tagColorBorder,
-      tagColorHover,
-      tagColorAccent,
-      tagColorLight,
-      // control
+      tagColor,      
       status,
       visibility,
       isFeatured,
@@ -43,6 +34,17 @@ export const createKnowledgeBase = async (req, res) => {
       });
     }
 
+    let parsedTagColor = {};
+    if (tagColor) {
+      try {
+        parsedTagColor = typeof tagColor === "string"
+          ? JSON.parse(tagColor)
+          : tagColor;
+      } catch {
+        return res.status(400).json({ message: "Invalid tagColor format" });
+      }
+    }
+
     let pdfUrl     = "";
     let coverImage = "";
 
@@ -54,19 +56,19 @@ export const createKnowledgeBase = async (req, res) => {
         coverImage = filePath;
       }
     }
+
     const kb = await KnowledgeBase.create({
       title,
-      subtitle,
       description,
       tag,
       tagColor: {
-        pill:   tagColorPill,
-        dot:    tagColorDot,
-        text:   tagColorText,
-        border: tagColorBorder,
-        hover:  tagColorHover,
-        accent: tagColorAccent,
-        light:  tagColorLight,
+        pill:   parsedTagColor.pill   || "",
+        dot:    parsedTagColor.dot    || "",
+        text:   parsedTagColor.text   || "",
+        border: parsedTagColor.border || "",
+        hover:  parsedTagColor.hover  || "",
+        accent: parsedTagColor.accent || "",
+        light:  parsedTagColor.light  || "",
       },
       highlights:  highlights ? JSON.parse(highlights) : [],
       readTime:    readTime   ? Number(readTime)        : undefined,
@@ -77,7 +79,7 @@ export const createKnowledgeBase = async (req, res) => {
       visibility:  visibility || "public",
       isFeatured:  isFeatured === "true" || isFeatured === true,
       ngo:         req.ngoId,
-      createdBy:   req.user.id,            
+      createdBy:   req.user.id,
     });
 
     res.status(201).json({
@@ -104,7 +106,7 @@ export const updateKnowledgeBase = async (req, res) => {
     }
 
     const {
-      title, subtitle, description, tag, highlights,
+      title, description, tag, highlights,
       readTime, order, status, visibility, isFeatured,
       tagColorPill, tagColorDot, tagColorText,
       tagColorBorder, tagColorHover, tagColorAccent, tagColorLight,
@@ -122,7 +124,7 @@ export const updateKnowledgeBase = async (req, res) => {
     }
 
     if (title)       kb.title       = title;
-    if (subtitle)    kb.subtitle    = subtitle;
+
     if (description) kb.description = description;
     if (tag)         kb.tag         = tag;
     if (highlights)  kb.highlights  = JSON.parse(highlights);

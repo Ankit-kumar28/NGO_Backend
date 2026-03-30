@@ -44,7 +44,7 @@ export const ngoMiddleware = async (req, res, next) => {
     req.ngoCode = ngo.code;
     req.ngoName = ngo.name;
 
-    console.log("req.ngo set to:", req.ngo);
+    console.log("req.ngo set to:", req.ngo,req.ngoId);
 
   
     next();

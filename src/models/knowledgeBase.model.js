@@ -100,13 +100,6 @@ const knowledgeBaseSchema = new mongoose.Schema(
   }
 );
 
-// ── COMPOUND INDEX ─────────────────────────────────────────────
-// knowledgeBaseSchema.index({
-//   ngo:        1,
-//   status:     1,
-//   visibility: 1,
-//   order:      1,
-// });
 
 
 export const KnowledgeBase = mongoose.model(

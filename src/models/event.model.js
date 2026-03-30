@@ -66,12 +66,7 @@ const eventSchema = new mongoose.Schema(
       type: String,
      },
 
-    // STATUS
-    // status: {
-    //   type: String,
-    //   enum: ["upcoming", "ongoing", "completed", "cancelled"],
-    //   default: "upcoming",
-    // },
+   
 
     visibility: {
       type: String,
@@ -84,7 +79,7 @@ const eventSchema = new mongoose.Schema(
       default: false,
     },
 
-    // RELATIONS
+   
     ngo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "NGO",

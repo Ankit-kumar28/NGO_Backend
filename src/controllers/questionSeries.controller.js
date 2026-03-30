@@ -205,7 +205,7 @@ export const getSingleQuestionSeries = async (req, res) => {
         visibility: "public",
         status:     "published",
       },
-      { $inc: { views: 1 } },          // atomic increment — no race condition
+      { $inc: { views: 1 } },        
       { new: true }
     ).select("-createdBy -__v");
 

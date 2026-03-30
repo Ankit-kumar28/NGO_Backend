@@ -18,6 +18,7 @@ import donateRoutes from "./routes/donation.route.js"
 
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "../swagger.js";
+import unifiedContentRoutes from "./routes/unifiedContent.route.js";
 
 
 const app=express();
@@ -47,5 +48,7 @@ app.use("/api",knowledgeBaseRoutes);
 app.use("/api", getInvolvedRoutes);
 app.use("/api",projectRoutes);
 app.use("/api",donateRoutes);
+
+app.use("/api", unifiedContentRoutes);
 
 export default app;
