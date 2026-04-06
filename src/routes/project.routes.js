@@ -19,11 +19,16 @@ router.get("/project/:id", ngoMiddleware, getSingleProject);
 router.post(
   "/project",
   authMiddleware,
-  upload.single("file"),
+  ngoMiddleware,
+ upload.fields([
+  {name: "images",maxCount: 10},
+    { name: "coverImage", maxCount: 1 },
+    { name: "pdfUrl", maxCount: 1 }
+  ]),
   createProject
 );
 
-router.get("/admin/projects", authMiddleware, getMyProjects);
+router.get("/admin/projects", authMiddleware,ngoMiddleware, getMyProjects);
 
 router.delete("/project/:id", authMiddleware, deleteProject);
 

@@ -30,6 +30,7 @@ router.get(
 router.post(
   "/knowledgebase",
   authMiddleware,
+  ngoMiddleware,
   upload.single("file"),
   createKnowledgeBase
 );
@@ -37,6 +38,7 @@ router.post(
 router.put(
   "/knowledgebase/:id",        
   authMiddleware,
+  ngoMiddleware,
   upload.single("file"),
   updateKnowledgeBase
 );
@@ -44,12 +46,14 @@ router.put(
 router.get(
   "/admin/knowledgebase",
   authMiddleware,
+  ngoMiddleware,
   getMyKnowledgeBase            
 );
 
 router.delete(
   "/knowledgebase/:id",
   authMiddleware,
+  ngoMiddleware,
   deleteKnowledgeBase
 );
 

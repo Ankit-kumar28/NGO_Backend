@@ -23,17 +23,18 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["admin"], // 🔥 simplify for your project
+      enum: ["admin", "superadmin"],// 🔥 simplify for your project
       default: "admin"
     },
 
     // 🔥 VERY IMPORTANT (tenant link)
-    ngo: {
+   ngo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "NGO",
-      required: true
+      required: function () {
+        return this.role === "admin";
+      }
     },
-
     isActive: {
       type: Boolean,
       default: true

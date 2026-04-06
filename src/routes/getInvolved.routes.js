@@ -18,7 +18,7 @@ router.post(
   createGetInvolved             
 );
 
-router.get("/get-involved", authMiddleware, getGetInvolved);
-router.patch("/get-involved/:id/status", authMiddleware, updateStatus);
+router.get("/get-involved", authMiddleware,ngoMiddleware, getGetInvolved);
+router.patch("/get-involved/:id/status", authMiddleware, ngoMiddleware, updateStatus);
 
 export default router;

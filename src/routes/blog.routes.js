@@ -7,7 +7,11 @@ import { ngoMiddleware } from "../middlewares/ngo.middleware.js";
 const router = express.Router();
 router.get("/blog", ngoMiddleware, getBlogs);           
 router.get("/blog/:id", ngoMiddleware, getSingleBlog); 
-router.post("/blog", authMiddleware, upload.single("coverImage"), createBlog);
-router.get("/admin/blog", authMiddleware, getMyBlogs);
-router.delete("/blog/:id", authMiddleware, deleteBlog);
+router.post("/blog", authMiddleware,ngoMiddleware,  upload.fields([
+    { name: "coverImage", maxCount: 1 },
+    { name: "pdfUrl", maxCount: 1 }
+  ]), createBlog);
+
+router.get("/admin/blog", authMiddleware,ngoMiddleware, getMyBlogs);
+router.delete("/blog/:id", authMiddleware, ngoMiddleware,deleteBlog);
 export default router;

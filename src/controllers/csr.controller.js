@@ -41,7 +41,7 @@ export const getCSRForms = async (req, res) => {
   try {
     const { status, volunteering, page = 1, limit = 10 } = req.query;
 
-    const filter = { ngo: req.user.ngoId };
+    const filter = { ngo: req.ngoId };
 
     if (status) filter.status = status;
     if (volunteering) filter.volunteering = volunteering;

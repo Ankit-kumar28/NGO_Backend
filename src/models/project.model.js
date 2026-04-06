@@ -33,8 +33,7 @@ const projectSchema = new mongoose.Schema(
 
     location: String,
 
-    startDate: Date,
-    endDate: Date,
+    date:Date,
 
     status: {
       type: String,
@@ -47,7 +46,10 @@ const projectSchema = new mongoose.Schema(
       enum: ["public", "private"],
       default: "public"
     },
-
+ isFeatured: {
+      type: Boolean,
+      default: false,
+    },
     views: {
       type: Number,
       default: 0

@@ -30,6 +30,7 @@ router.get(
 router.post(
   "/question",
   authMiddleware,
+  ngoMiddleware,
   upload.single("file"),       
   createQuestionSeries
 );
@@ -37,19 +38,23 @@ router.post(
 router.put(
   "/question/:id",            
   authMiddleware,
+  ngoMiddleware,
   upload.single("file"),
   updateQuestionSeries
 );
 
 router.get(
   "/admin/question",
+
   authMiddleware,
+  ngoMiddleware,
   getMyQuestionSeries          
 );
 
 router.delete(
   "/question/:id",            
   authMiddleware,
+  ngoMiddleware,
   deleteQuestionSeries
 );
 

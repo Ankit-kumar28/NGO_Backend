@@ -19,11 +19,12 @@ router.get("/event/:id", ngoMiddleware, getSingleEvent);
 router.post(
   "/event",
   authMiddleware,
+  ngoMiddleware,
   upload.single("image"),   
   createEvent
 );
 
-router.get("/admin/events", authMiddleware, getMyEvents);
-router.delete("/event/:id", authMiddleware, deleteEvent);
+router.get("/admin/events", authMiddleware, ngoMiddleware,getMyEvents);
+router.delete("/event/:id", authMiddleware, ngoMiddleware, deleteEvent);
 
 export default router;

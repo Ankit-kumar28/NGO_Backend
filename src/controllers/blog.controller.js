@@ -46,17 +46,15 @@ export const createBlog = async (req, res) => {
       console.log(" Internal content sanitized");
     }
 
-    let coverImage = "";
-    let pdfUrl = "";
+  const folder = req.ngoName || "default";
 
-    if (req.file) {
-      const filePath = `/uploads/${req.ngoName || "default"}/${req.file.filename}`;
-      if (req.file.mimetype === "application/pdf") {
-        pdfUrl = filePath;
-      } else {
-        coverImage = filePath;
-      }
-    }
+const coverImage = req.files?.coverImage?.[0]
+  ? `/uploads/${folder}/${req.files.coverImage[0].filename}`
+  : null;
+
+const pdfUrl = req.files?.pdfUrl?.[0]
+  ? `/uploads/${folder}/${req.files.pdfUrl[0].filename}`
+  : null;
 
  
     const blog = await Blog.create({

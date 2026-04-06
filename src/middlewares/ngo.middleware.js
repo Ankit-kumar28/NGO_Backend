@@ -2,29 +2,32 @@ import NGO from "../models/ngo.model.js";
 
 export const ngoMiddleware = async (req, res, next) => {
   try {
-    console.log(" NGO Middleware triggered");
+    console.log("=== NGO Middleware Triggered ===");
 
-   
-    const ngoCode = req.headers["x-ngo-id"];
-    console.log(" Received NGO Code:", ngoCode);
+    const ngoIdentifier = req.headers["x-ngo-id"];
 
-   
-    if (!ngoCode) {
-      console.log("NGO code missing in headers");
+    console.log("x-ngo-id received:", ngoIdentifier);
+
+    if (!ngoIdentifier) {
+      console.log("Missing x-ngo-id header");
       return res.status(400).json({
         success: false,
-        message: "NGO code (x-ngo-id) is required"
+        message: "x-ngo-id header is required"
       });
     }
 
-   
-    const ngo = await NGO.findOne({ code: ngoCode });
+    let ngo;
 
-    console.log(" NGO found in DB:", ngo);
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(ngoIdentifier);
 
-    
+    if (isObjectId) {
+      ngo = await NGO.findById(ngoIdentifier);
+    } else {
+      ngo = await NGO.findOne({ code: ngoIdentifier });
+    }
+
     if (!ngo) {
-      console.log(" Invalid NGO code");
+      console.log(" Invalid NGO:", ngoIdentifier);
       return res.status(404).json({
         success: false,
         message: "Invalid NGO"
@@ -32,28 +35,26 @@ export const ngoMiddleware = async (req, res, next) => {
     }
 
     if (!ngo.isActive) {
-      console.log(" NGO is inactive");
       return res.status(403).json({
         success: false,
         message: "NGO is inactive"
       });
     }
 
-      req.ngo = ngo;
-      req.ngoId = ngo._id;
+    req.ngo = ngo;
+    req.ngoId = ngo._id;
     req.ngoCode = ngo.code;
     req.ngoName = ngo.name;
 
-    console.log("req.ngo set to:", req.ngo,req.ngoId);
+    console.log(`NGO Access Granted: ${ngo.name} (${ngo.code})`);
 
-  
     next();
 
   } catch (error) {
-    console.error(" NGO Middleware Error:", error);
+    console.error("NGO Middleware Error:", error);
     res.status(500).json({
       success: false,
-      message: "Server Error in NGO Middleware"
+      message: "Server error in NGO middleware"
     });
   }
 };

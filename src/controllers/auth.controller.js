@@ -5,28 +5,22 @@ import jwt from "jsonwebtoken";
 
 export const register = async (req, res) => {
   try {
-    const { name, email, password, ngoCode } = req.body;
+    const { name, email, password } = req.body;
 
-    if (!name || !email || !password || !ngoCode) {
+    if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Name, email, password and ngoCode are required"
+        message: "Name, email and password are required"
       });
     }
 
-    const ngo = await NGO.findOne({ code: ngoCode });
-    if (!ngo) {
-      return res.status(404).json({
-        success: false,
-        message: "Invalid NGO code"
-      });
-    }
+    const normalizedEmail = email.toLowerCase().trim();
 
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) {
       return res.status(409).json({
         success: false,
-        message: "User already exists with this email"
+        message: "User already exists"
       });
     }
 
@@ -34,22 +28,20 @@ export const register = async (req, res) => {
 
     const user = await User.create({
       name: name.trim(),
-      email: email.toLowerCase().trim(),
+      email: normalizedEmail,
       password: hashedPassword,
-      role: "admin",
-      ngo: ngo._id
+      role: "superadmin",     // ← Only superadmin allowed
+      ngo: null
     });
 
     res.status(201).json({
       success: true,
-      message: "Admin registered successfully",
+      message: "Super Admin registered successfully",
       data: {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role,
-        ngoId: ngo._id,
-        ngoCode: ngo.code
+        role: "superadmin"
       }
     });
 
@@ -70,13 +62,20 @@ export const login = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() })
-                          .populate("ngo", "code name");   // ← Good practice
+    const user = await User.findOne({ email: email.toLowerCase().trim() })
+      .populate("ngo", "code name");   // Works even if ngo is null
 
     if (!user) {
       return res.status(404).json({
         success: false,
         message: "User not found"
+      });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: "Account is deactivated"
       });
     }
 
@@ -88,18 +87,16 @@ export const login = async (req, res) => {
       });
     }
 
-  
-    const token = jwt.sign(
-  {
-    id: user._id,
-    role: user.role,
-    ngoId: user.ngo._id,
-    ngoCode: user.ngo.code,
-    ngoName: user.ngo.name   
-  },
-  process.env.SECRET_KEY,
-  { expiresIn: "1d" }
-);
+    // JWT Payload
+    const tokenPayload = {
+      id: user._id,
+      role: user.role,
+      ngoId: user.ngo?._id || null,     // null for superadmin
+      ngoCode: user.ngo?.code || null,
+      ngoName: user.ngo?.name || null
+    };
+
+    const token = jwt.sign(tokenPayload, process.env.SECRET_KEY, { expiresIn: "1d" });
 
     res.json({
       success: true,
@@ -110,9 +107,9 @@ export const login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        ngoId: user.ngo._id,
-        ngoCode: user.ngo.code,
-        ngoName: user.ngo.name
+        ngoId: user.ngo?._id || null,
+        ngoCode: user.ngo?.code || null,
+        ngoName: user.ngo?.name || null
       }
     });
 

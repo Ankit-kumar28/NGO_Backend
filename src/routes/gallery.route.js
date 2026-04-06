@@ -11,6 +11,7 @@ router.post(
   "/gallery",
 
   authMiddleware,
+  ngoMiddleware,
   upload.single("file"),
   createGallery
 );
@@ -18,6 +19,7 @@ router.post(
 router.get(
   "/gallery",
   ngoMiddleware,
+  
   getGallery
 );
 router.get(
@@ -29,6 +31,7 @@ router.get(
 router.delete(
   "/admin/gallery/:id",
   authMiddleware,
+  ngoMiddleware,
   deleteMyGallery
 );
 export default router;

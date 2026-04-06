@@ -24,7 +24,7 @@ export const createKnowledgeBase = async (req, res) => {
       isFeatured,
     } = req.body;
 
-    if (!req.user || !req.ngoId) {
+    if (!req.ngoId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 

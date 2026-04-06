@@ -15,8 +15,8 @@ const router = express.Router();
 router.post("/csr", ngoMiddleware, createCSRForm);
 
 
-router.get("/csr", authMiddleware, getCSRForms);                        
-router.patch("/csr/:id/status", authMiddleware, updateCSRStatus);
-router.delete("/csr/:id", authMiddleware, deleteCSRForm);
+router.get("/csr", authMiddleware,ngoMiddleware, getCSRForms);                        
+router.patch("/csr/:id/status", authMiddleware, ngoMiddleware,updateCSRStatus);
+router.delete("/csr/:id", authMiddleware, ngoMiddleware,deleteCSRForm);
 
 export default router;

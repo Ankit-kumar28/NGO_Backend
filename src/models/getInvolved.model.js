@@ -44,19 +44,7 @@ const getInvolvedSchema = new mongoose.Schema(
     // ── Membership-only ────────────────────────────
     membershipType: {
       type: String,
-      enum: [
-        "Patient",
-        "Caregiver / Family Member",
-        "Doctor / Clinician",
-        "Researcher / Scientist",
-        "Student",
-        "Volunteer",
-        "NGO Representative",
-        "Pharmaceutical Company / Industry Professional",
-        "Regulator / Policy Maker",
-        "Technology Partner / Digital Health",
-        "Other"
-      ]
+    
     },
     otherMembershipType: {
       type: String,
@@ -66,13 +54,7 @@ const getInvolvedSchema = new mongoose.Schema(
     // ── Volunteer-only ─────────────────────────────
     area: {
       type: String,
-      enum: [
-        "Awareness Campaigns",
-        "Patient Support",
-        "Event Assistance",
-        "Fundraising",
-        "Social Media & Outreach"
-      ]
+     
     },
 
     // ── Internship-only ────────────────────────────

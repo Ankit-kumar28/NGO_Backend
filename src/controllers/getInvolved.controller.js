@@ -36,12 +36,12 @@ export const createGetInvolved = async (req, res) => {
       });
     }
 
-    if (type === "volunteer" && !area) {
-      return res.status(400).json({
-        success: false,
-        message: "area is required for volunteer form"
-      });
-    }
+    // if (type === "volunteer" && !area) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "area is required for volunteer form"
+    //   });
+    // }
 
     if (type === "internship" && !college) {
       return res.status(400).json({
@@ -86,7 +86,7 @@ export const getGetInvolved = async (req, res) => {
   try {
     const { type, status, page = 1, limit = 10 } = req.query;
 
-    const filter = { ngo: req.user.ngoId };
+    const filter = { ngo: req.ngoId };
 
     if (type) {
       const allowedTypes = ["membership", "volunteer", "internship"];
@@ -148,7 +148,7 @@ export const updateStatus = async (req, res) => {
     }
 
     const entry = await GetInvolved.findOneAndUpdate(
-      { _id: id, ngo: req.user.ngoId }, 
+      { _id: id, ngo: req.ngoId }, 
       { status },
       { new: true }
     );

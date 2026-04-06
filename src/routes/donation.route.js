@@ -24,8 +24,9 @@ router.get("/donation/status", ngoMiddleware, checkDonationStatus);
 router.get(
   "/donations",
   authMiddleware, 
+  ngoMiddleware,
   getDonations
 );
 
-router.put("/donation/:id", authMiddleware, verifyDonation);
+router.put("/donation/:id", authMiddleware, ngoMiddleware, verifyDonation);
 export default router;
