@@ -1,0 +1,14 @@
+# Ignore dependencies, as they are installed inside the container
+node_modules
+
+# Ignore environment files, as they will be provided during runtime
+.env
+
+# Ignore Docker files
+Dockerfile
+.dockerignore
+
+# Ignore Git and npm debug logs
+.git
+.gitignore
+npm-debug.log
