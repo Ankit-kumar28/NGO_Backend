@@ -7,6 +7,7 @@ import {
   deleteService,
 } from "../controllers/service.controller.js";
 import { upload } from "../middlewares/upload.middleware.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js"; 
 import { ngoMiddleware } from "../middlewares/ngo.middleware.js";
 
 const router = express.Router();
@@ -49,7 +50,7 @@ const router = express.Router();
  *       500:
  *         description: Server error
  */
-router.post("/", ngoMiddleware, upload.single("image"), createService);
+router.post("/", authMiddleware, ngoMiddleware, upload.single("image"), createService);
 
 /**
  * @swagger
@@ -143,7 +144,7 @@ router.get("/:id", ngoMiddleware, getServiceById);
  *       500:
  *         description: Server error
  */
-router.put("/:id", ngoMiddleware, upload.single("image"), updateService);
+router.patch("/:id", authMiddleware, ngoMiddleware, upload.single("image"), updateService);
 
 /**
  * @swagger
@@ -172,7 +173,7 @@ router.put("/:id", ngoMiddleware, upload.single("image"), updateService);
  *       500:
  *         description: Server error
  */
-router.delete("/:id", ngoMiddleware, deleteService);
+router.delete("/:id",authMiddleware, ngoMiddleware, deleteService);
 
 export default router;
 
