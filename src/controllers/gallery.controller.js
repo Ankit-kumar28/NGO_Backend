@@ -1,63 +1,67 @@
-// controllers/gallery.controller.js
-import User from "../models/user.model.js";
-
 import { Gallery } from "../models/gallery.model.js";
 import path from 'path';
 import fs from 'fs';
 
+
 export const createGallery = async (req, res) => {
   try {
-    console.log(" Upload Gallery");
+    console.log("=== CREATE GALLERY API Called ===");
 
     const { title, description, mediaType } = req.body;
 
     if (!req.file) {
       return res.status(400).json({
-        message: "File required"
+        success: false,
+        message: "File is required"
       });
     }
 
     const filePath = `/uploads/${req.ngoName || "default"}/${req.file.filename}`;
 
     const gallery = await Gallery.create({
-      title,
-      description,
+      title: title?.trim(),
+      description: description?.trim(),
       mediaType,
       mediaUrl: filePath,
-      
-      ngo: req.ngoId,          
-      uploadedBy: req.user.id
+      ngo: req.ngoId,
+      uploadedBy: req.user?.id
     });
+
+    console.log(" Gallery created successfully");
 
     res.status(201).json({
       success: true,
+      message: "Gallery created successfully",
       data: gallery
     });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Create Gallery Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
   }
 };
-
-
 
 export const getGallery = async (req, res) => {
   try {
-    console.log("Fetch gallery for NGO:", req.ngoName);
+    console.log("=== GET GALLERY API Called for:", req.ngoName);
 
-    const gallery = await Gallery.find({ ngo: req.ngo })
-      .sort({ createdAt: -1 });
+    const gallery = await Gallery.find({ 
+      ngo: req.ngoId 
+    }).sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
-      ngo: req.ngoName,
+      ngoName: req.ngoName,
+      ngoCode: req.ngoCode,
       count: gallery.length,
       data: gallery
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("Get Gallery Error:", error);
     res.status(500).json({
       success: false,
       message: "Server error"
@@ -65,76 +69,112 @@ export const getGallery = async (req, res) => {
   }
 };
 
-export const getMyGallery = async (req, res) => {
+
+export const updateGallery = async (req, res) => {
   try {
-    console.log("Admin fetching own uploads:", req.user.id);
-    const user = await User.findById(req.user.id);
-    console.log(" Admin:", user.name);
-    const gallery = await Gallery.find({
-      uploadedBy: req.user.id   
-    })
-      .sort({ createdAt: -1 })
-      .populate("ngo", "name code");
+    console.log("=== PATCH GALLERY API Called ===");
 
-    res.status(200).json({
-      success: true,
-      count: gallery.length,
-      data: gallery
-    });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: "Server error"
-    });
-  }
-};
-
-export const deleteMyGallery = async (req, res) => {
-  try {
     const { id } = req.params;
+    const { title, description, mediaType } = req.body;
 
-    console.log(" Delete request by:", req.user.id);
+    const galleryItem = await Gallery.findById(id);
 
-   
-    const gallery = await Gallery.findOne({
-      _id: id,
-      uploadedBy: req.user.id
-    });
-
-    if (!gallery) {
+    if (!galleryItem) {
       return res.status(404).json({
         success: false,
-        message: "Gallery not found or not authorized"
+        message: "Gallery item not found"
       });
     }
 
-    const ngoFolderName = req.ngoName || "default";
-
-    console.log(ngoFolderName )
-
-console.log(gallery.mediaUrl)
-      const filePath = path.join(`public/uploads/${ngoFolderName}`,gallery.mediaUrl);
-
-    console.log("File path:", filePath);
-
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-      console.log(" File deleted");
-    } else {
-      console.log(" File not found in folder");
+    if (galleryItem.ngo.toString() !== req.ngoId.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only update items of the selected NGO"
+      });
     }
 
-    await Gallery.findByIdAndDelete(id);
+    let newMediaUrl = galleryItem.mediaUrl;
 
-    res.status(200).json({
+    if (req.file) {
+      
+      if (galleryItem.mediaUrl) {
+        const oldFilePath = path.join(process.cwd(), galleryItem.mediaUrl);
+        if (fs.existsSync(oldFilePath)) {
+          fs.unlinkSync(oldFilePath);
+          console.log("Old file deleted");
+        }
+      }
+      newMediaUrl = `/uploads/${req.ngoName || "default"}/${req.file.filename}`;
+    }
+
+    const updatedGallery = await Gallery.findByIdAndUpdate(
+      id,
+      {
+        title: title?.trim() || galleryItem.title,
+        description: description?.trim() || galleryItem.description,
+        mediaType: mediaType || galleryItem.mediaType,
+        mediaUrl: newMediaUrl
+      },
+      { new: true }
+    );
+
+    console.log(" Gallery updated successfully");
+
+    res.json({
       success: true,
-      message: "Gallery deleted successfully"
+      message: "Gallery updated successfully",
+      data: updatedGallery
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("Update Gallery Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+};
+
+export const deleteGallery = async (req, res) => {
+  try {
+    console.log("=== DELETE GALLERY API Called ===");
+
+    const { id } = req.params;
+
+    const galleryItem = await Gallery.findById(id);
+
+    if (!galleryItem) {
+      return res.status(404).json({
+        success: false,
+        message: "Gallery item not found"
+      });
+    }
+
+    if (galleryItem.ngo.toString() !== req.ngoId.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only delete items of the selected NGO"
+      });
+    }
+
+    if (galleryItem.mediaUrl) {
+      const filePath = path.join(process.cwd(), galleryItem.mediaUrl);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+
+    await galleryItem.deleteOne();
+
+    console.log("Gallery item deleted successfully");
+
+    res.json({
+      success: true,
+      message: "Gallery item deleted successfully"
+    });
+
+  } catch (error) {
+    console.error("Delete Gallery Error:", error);
     res.status(500).json({
       success: false,
       message: "Server error"

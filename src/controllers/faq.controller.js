@@ -98,7 +98,6 @@ export const updateFAQ = async (req, res) => {
     const { id } = req.params;
     const { question, answer, category, isActive } = req.body;
 
-    // Find FAQ
     const faq = await FAQ.findById(id);
 
     if (!faq) {

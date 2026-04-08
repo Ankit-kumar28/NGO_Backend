@@ -30,7 +30,7 @@ export const register = async (req, res) => {
       name: name.trim(),
       email: normalizedEmail,
       password: hashedPassword,
-      role: "superadmin",     // ← Only superadmin allowed
+      role: "superadmin",    
       ngo: null
     });
 
@@ -63,7 +63,7 @@ export const login = async (req, res) => {
     }
 
     const user = await User.findOne({ email: email.toLowerCase().trim() })
-      .populate("ngo", "code name");   // Works even if ngo is null
+      .populate("ngo", "code name");   
 
     if (!user) {
       return res.status(404).json({
@@ -87,11 +87,10 @@ export const login = async (req, res) => {
       });
     }
 
-    // JWT Payload
     const tokenPayload = {
       id: user._id,
       role: user.role,
-      ngoId: user.ngo?._id || null,     // null for superadmin
+      ngoId: user.ngo?._id || null,    
       ngoCode: user.ngo?.code || null,
       ngoName: user.ngo?.name || null
     };

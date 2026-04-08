@@ -35,7 +35,7 @@ router.post(
   createQuestionSeries
 );
 
-router.put(
+router.patch(
   "/question/:id",            
   authMiddleware,
   ngoMiddleware,
@@ -44,7 +44,7 @@ router.put(
 );
 
 router.get(
-  "/admin/question",
+  "/question",
 
   authMiddleware,
   ngoMiddleware,

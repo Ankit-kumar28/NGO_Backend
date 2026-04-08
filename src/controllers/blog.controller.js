@@ -15,7 +15,6 @@ const sanitizeOptions = {
     img: ["src", "alt", "width", "height"],
     "*": ["class", "style"] 
   },
- 
   allowVulnerableTags: true, 
   disallowedTagsMode: "discard",
 };
@@ -35,7 +34,6 @@ export const createBlog = async (req, res) => {
       visibility = "public",
       source = "LinkedIn",
       readTime,       
-     
       month,
       year,
     } = req.body;
@@ -43,23 +41,22 @@ export const createBlog = async (req, res) => {
     let finalContent = content || "";
     if (contentType === "internal" && finalContent) {
       finalContent = sanitizeHtml(finalContent, sanitizeOptions);
-      console.log(" Internal content sanitized");
+      console.log("Internal content sanitized");
     }
 
-  const folder = req.ngoName || "default";
+    const folder = req.ngoName || "default";
 
-const coverImage = req.files?.coverImage?.[0]
-  ? `/uploads/${folder}/${req.files.coverImage[0].filename}`
-  : null;
+    const coverImage = req.files?.coverImage?.[0]
+      ? `/uploads/${folder}/${req.files.coverImage[0].filename}`
+      : undefined;
 
-const pdfUrl = req.files?.pdfUrl?.[0]
-  ? `/uploads/${folder}/${req.files.pdfUrl[0].filename}`
-  : null;
+    const pdfUrl = req.files?.pdfUrl?.[0]
+      ? `/uploads/${folder}/${req.files.pdfUrl[0].filename}`
+      : undefined;
 
- 
     const blog = await Blog.create({
       title,
-      content: finalContent,           
+      content: finalContent,
       externalUrl,
       contentType,
       excerpt,
@@ -67,8 +64,7 @@ const pdfUrl = req.files?.pdfUrl?.[0]
       status,
       visibility,
       source,
-      readTime,      
-      
+      readTime,
       month: month ? Number(month) : undefined,
       year: year ? Number(year) : undefined,
       coverImage,
@@ -100,9 +96,7 @@ export const getBlogs = async (req, res) => {
       ngo: req.ngo,
       status: "published",
       visibility: "public",
-    })
-      .sort({  createdAt: -1 }) ;
-      
+    }).sort({ createdAt: -1 });
 
     res.json({
       success: true,
@@ -121,29 +115,14 @@ export const getSingleBlog = async (req, res) => {
   try {
     const { id } = req.params;
 
-    if (!req.ngo) {
-      return res.status(400).json({
-        success: false,
-        message: "NGO context not found",
-      });
-    }
-
-    const blog = await Blog.findOne({
-      _id: id,
-      ngo: req.ngo,
-      status: "published",
-      visibility: "public",
-    });
+    const blog = await Blog.findById(id);
 
     if (!blog) {
       return res.status(404).json({
         success: false,
-        message: "Blog not found or not accessible",
+        message: "Blog not found",
       });
     }
-
-    blog.views = (blog.views || 0) + 1;
-    await blog.save();
 
     res.json({
       success: true,
@@ -158,22 +137,99 @@ export const getSingleBlog = async (req, res) => {
   }
 };
 
-export const getMyBlogs = async (req, res) => {
+export const updateBlog = async (req, res) => {
   try {
-    const blogs = await Blog.find({
-      author: req.user.id,
-    }).sort({ year: -1, month: -1, date: -1, createdAt: -1 });
+    const { id } = req.params;
+
+    const blog = await Blog.findOne({
+      _id: id,
+      author: req.user.id,       
+    });
+
+    if (!blog) {
+      return res.status(404).json({
+        success: false,
+        message: "Blog not found or you are not authorized to update it",
+      });
+    }
+
+    const {
+      title,
+      content,
+      externalUrl,
+      contentType,
+      excerpt,
+      category,
+      status,
+      visibility,
+      source,
+      readTime,
+      month,
+      year,
+    } = req.body;
+
+    let finalContent = blog.content;
+    if (contentType === "internal" && content) {
+      finalContent = sanitizeHtml(content, sanitizeOptions);
+    } else if (content) {
+      finalContent = content;
+    }
+
+    const folder = req.ngoName || "default";
+
+    let coverImage = blog.coverImage;
+    if (req.files?.coverImage?.[0]) {
+      
+      if (blog.coverImage) {
+        const oldImgPath = path.join("public", blog.coverImage);
+        if (fs.existsSync(oldImgPath)) fs.unlinkSync(oldImgPath);
+      }
+      coverImage = `/uploads/${folder}/${req.files.coverImage[0].filename}`;
+    }
+
+    let pdfUrl = blog.pdfUrl;
+    if (req.files?.pdfUrl?.[0]) {
+      
+      if (blog.pdfUrl) {
+        const oldPdfPath = path.join("public", blog.pdfUrl);
+        if (fs.existsSync(oldPdfPath)) fs.unlinkSync(oldPdfPath);
+      }
+      pdfUrl = `/uploads/${folder}/${req.files.pdfUrl[0].filename}`;
+    }
+
+    const updatedBlog = await Blog.findByIdAndUpdate(
+      id,
+      {
+        title,
+        content: finalContent,
+        externalUrl,
+        contentType,
+        excerpt,
+        category,
+        status,
+        visibility,
+        source,
+        readTime,
+        month: month ? Number(month) : blog.month,
+        year: year ? Number(year) : blog.year,
+        coverImage,
+        pdfUrl,
+        ...(status === "published" && !blog.publishedAt && { publishedAt: new Date() }),
+      },
+      { new: true, runValidators: true }
+    );
 
     res.json({
       success: true,
-      count: blogs.length,
-      data: blogs,
+      message: "Blog updated successfully",
+      data: updatedBlog,
     });
+
   } catch (error) {
-    console.error("Get My Blogs Error:", error);
+    console.error("Update Blog Error:", error);
     res.status(500).json({
       success: false,
-      message: "Server error",
+      message: error.message || "Failed to update blog",
     });
   }
 };

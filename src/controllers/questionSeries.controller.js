@@ -13,12 +13,12 @@ const deleteFile = (filePath) => {
 export const createQuestionSeries = async (req, res) => {
   try {
     const {
-      // required
+      
       title,
       description,
       seriesType,
       code,
-      // optional content
+      
       subtitle,
       tag,
       tagLine,
@@ -41,7 +41,7 @@ export const createQuestionSeries = async (req, res) => {
     if (!req.user || !req.ngoId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-    if (!title || !description || !seriesType || !code) {
+    if (!title || !description || !seriesType ) {
       return res.status(400).json({
         message: "title, description, seriesType and code are required",
       });
@@ -94,12 +94,7 @@ export const createQuestionSeries = async (req, res) => {
     });
 
   } catch (error) {
-    // Duplicate code → friendly message
-    // if (error.code === 11000) {
-    //   return res.status(409).json({
-    //     message: `A series with code "${req.body.code}" already exists`,
-    //   });
-    // }
+  
     console.error("createQuestionSeries:", error);
     res.status(500).json({ message: error.message });
   }

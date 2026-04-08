@@ -1,39 +1,42 @@
 import express from "express";
-import { createGallery,getGallery,getMyGallery,deleteMyGallery} from "../controllers/gallery.controller.js";
+import { 
+  createGallery, 
+  getGallery, 
+  updateGallery, 
+  deleteGallery 
+} from "../controllers/gallery.controller.js";
+
 import { authMiddleware } from "../middlewares/auth.middleware.js";
-// import { ngoMiddleware } from "../middlewares/ngo.middleware.js";
-import { upload } from "../middlewares/upload.middleware.js";
 import { ngoMiddleware } from "../middlewares/ngo.middleware.js";
+import { upload } from "../middlewares/upload.middleware.js";
 
 const router = express.Router();
 
+router.get("/gallery", ngoMiddleware, getGallery);
+
 router.post(
   "/gallery",
-
   authMiddleware,
   ngoMiddleware,
-  upload.single("file"),
+  upload.single("media"),
   createGallery
 );
 
-router.get(
-  "/gallery",
-  ngoMiddleware,
-  
-  getGallery
-);
-router.get(
-  "/admin/gallery",
+router.patch(
+  "/gallery/:id",
   authMiddleware,
-  getMyGallery
+  ngoMiddleware,
+  upload.single("media"),  
+  updateGallery
 );
 
 router.delete(
-  "/admin/gallery/:id",
-  authMiddleware,
-  ngoMiddleware,
-  deleteMyGallery
+  "/gallery/:id", 
+  authMiddleware, 
+  ngoMiddleware, 
+  deleteGallery
 );
+
 export default router;
 
 /**

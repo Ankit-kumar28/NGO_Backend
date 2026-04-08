@@ -16,7 +16,7 @@ router.post("/csr", ngoMiddleware, createCSRForm);
 
 
 router.get("/csr", authMiddleware,ngoMiddleware, getCSRForms);                        
-router.patch("/csr/:id/status", authMiddleware, ngoMiddleware,updateCSRStatus);
+router.patch("/csr/:id", authMiddleware, ngoMiddleware,updateCSRStatus);
 router.delete("/csr/:id", authMiddleware, ngoMiddleware,deleteCSRForm);
 
 export default router;

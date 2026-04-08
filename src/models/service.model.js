@@ -6,11 +6,11 @@ const serviceSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    slug: {
-      type: String,
-      required: true,
-      unique: true,
-    },
+    // slug: {
+    //   type: String,
+    //   required: true,
+    //   unique: true,
+    // },
     description: {
       type: String,
       required: true,
@@ -21,7 +21,7 @@ const serviceSchema = new mongoose.Schema(
     },
     ngo: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Ngo",
+      ref: "NGO",
       required: true,
     },
     visibility: {

@@ -35,7 +35,7 @@ router.post(
   createKnowledgeBase
 );
 
-router.put(
+router.patch(
   "/knowledgebase/:id",        
   authMiddleware,
   ngoMiddleware,
@@ -44,7 +44,7 @@ router.put(
 );
 
 router.get(
-  "/admin/knowledgebase",
+  "/knowledgebase",
   authMiddleware,
   ngoMiddleware,
   getMyKnowledgeBase            

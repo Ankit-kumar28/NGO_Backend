@@ -13,7 +13,7 @@ const router = express.Router();
 
 
 router.post(
-  "/donate",
+  "/donation",
   ngoMiddleware,   
   createDonation
 );
@@ -22,11 +22,11 @@ router.get("/donation/status", ngoMiddleware, checkDonationStatus);
 
 
 router.get(
-  "/donations",
+  "/donation",
   authMiddleware, 
   ngoMiddleware,
   getDonations
 );
 
-router.put("/donation/:id", authMiddleware, ngoMiddleware, verifyDonation);
+router.patch("/donation/:id", authMiddleware, ngoMiddleware, verifyDonation);
 export default router;

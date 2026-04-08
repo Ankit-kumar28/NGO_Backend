@@ -1,7 +1,6 @@
 // controllers/contact.controller.js
 import Contact from "../models/contact.model.js";
 
-// ✅ CREATE - Public route (anyone can send message)
 export const createContact = async (req, res) => {
   try {
     console.log("Create Contact API called");
@@ -21,7 +20,7 @@ export const createContact = async (req, res) => {
       phone,
       subject,
       message,
-      ngo: req.ngo,           // or req.ngoId depending on your middleware
+      ngo: req.ngo,           
       status: "pending"
     });
 
@@ -41,7 +40,6 @@ export const createContact = async (req, res) => {
   }
 };
 
-// ✅ GET ALL with filters
 export const getContacts = async (req, res) => {
   try {
     const { status } = req.query;
@@ -71,7 +69,6 @@ export const getContacts = async (req, res) => {
   }
 };
 
-// ✅ GET SINGLE CONTACT
 export const getContactById = async (req, res) => {
   try {
     const contact = await Contact.findOne({
@@ -96,15 +93,10 @@ export const getContactById = async (req, res) => {
   }
 };
 
-// 🔥 NEW: PATCH - Partial Update (Best for status, reply, notes)
-// controllers/contact.controller.js
-
-// 🔥 PATCH - Update Contact Status Only
 export const updateContact = async (req, res) => {
   try {
     const { status } = req.body;
 
-    // Validate status
     if (!status) {
       return res.status(400).json({
         success: false,
@@ -131,7 +123,7 @@ export const updateContact = async (req, res) => {
         updatedAt: Date.now()
       },
       { 
-        new: true,           // Return updated document
+        new: true,          
         runValidators: true 
       }
     );
@@ -156,7 +148,7 @@ export const updateContact = async (req, res) => {
     });
   }
 };
-// ✅ DELETE
+
 export const deleteContact = async (req, res) => {
   try {
     const contact = await Contact.findOneAndDelete({

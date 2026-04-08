@@ -23,11 +23,9 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["admin", "superadmin"],// 🔥 simplify for your project
+      enum: ["admin", "superadmin"],
       default: "admin"
     },
-
-    // 🔥 VERY IMPORTANT (tenant link)
    ngo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "NGO",
@@ -47,7 +45,5 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// optional index
-// userSchema.index({ email: 1 });
 
 export default mongoose.model("User", userSchema);

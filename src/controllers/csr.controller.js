@@ -22,7 +22,7 @@ export const createCSRForm = async (req, res) => {
       company, address, activities,
       saplings, location, volunteering,
       date, message,
-      ngo: req.ngo  // from ngoMiddleware
+      ngo: req.ngo  
     });
 
     res.status(201).json({
@@ -84,7 +84,7 @@ export const updateCSRStatus = async (req, res) => {
     }
 
     const form = await CSRForm.findOneAndUpdate(
-      { _id: id, ngo: req.user.ngoId },
+      { _id: id, ngo: req.ngoId },
       { status },
       { new: true }
     );
@@ -114,7 +114,7 @@ export const deleteCSRForm = async (req, res) => {
 
     const form = await CSRForm.findOneAndDelete({
       _id: id,
-      ngo: req.user.ngoId  // tenant-safe delete
+      ngo: req.ngoId 
     });
 
     if (!form) {

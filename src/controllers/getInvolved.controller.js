@@ -171,3 +171,24 @@ export const updateStatus = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+export const deleteGetInvolved = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const entry=await GetInvolved.findOneAndDelete({
+      _id:id,
+      ngo:req.ngoId,
+
+    });
+    if(!entry){
+      return res.status(404).json({
+        success:false,
+        message:"Application not found"
+      });
+    }
+
+  } catch (error) {
+    console.error("deleteGetInvolved error:", error);
+    res.status(500).json({success:false,message:"Server error"});
+  }
+};

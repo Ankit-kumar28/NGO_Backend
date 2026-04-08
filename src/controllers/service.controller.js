@@ -3,8 +3,9 @@ import Ngo from "../models/ngo.model.js";
 
 export const createService = async (req, res) => {
   try {
-    const { title, slug, description, visibility } = req.body;
-    const image = req.file ? req.file.path.replace(/\\/g, "/") : null;
+    const { title,  description, visibility } = req.body;
+    const filePath = `/uploads/${req.ngoName || "default"}/${req.file.filename}`;
+    const image = filePath;
     const ngoId = req.ngoId;
 
     if (!image) {
@@ -13,7 +14,7 @@ export const createService = async (req, res) => {
 
     const newService = new Service({
       title,
-      slug,
+      
       description,
       image,
       ngo: ngoId,
@@ -50,15 +51,16 @@ export const getServiceById = async (req, res) => {
 
 export const updateService = async (req, res) => {
   try {
-    const { title, slug, description, visibility } = req.body;
+    const { title,  description, visibility } = req.body;
     let image;
+    const filePath = `/uploads/${req.ngoName || "default"}/${req.file.filename}`;
     if (req.file) {
-      image = req.file.path.replace(/\\/g, "/");
+      image = filePath;
     }
 
     const updatedData = {
       title,
-      slug,
+      
       description,
       visibility,
     };

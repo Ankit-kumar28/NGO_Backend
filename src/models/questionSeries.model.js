@@ -102,7 +102,7 @@ const questionSeriesSchema = new mongoose.Schema(
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: [true, "Creator is required"],
+      required: [false, "Creator is required"],
     },
     status: {
       type: String,

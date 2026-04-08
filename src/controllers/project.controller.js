@@ -106,7 +106,6 @@ export const updateProject = async (req, res) => {
       visibility
     } = req.body;
 
-    // Sanitize updated HTML content
     let finalContent = content !== undefined ? content : project.content;
     if (finalContent) {
       finalContent = sanitizeHtml(finalContent, sanitizeOptions);

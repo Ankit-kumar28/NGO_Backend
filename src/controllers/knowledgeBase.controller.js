@@ -46,15 +46,13 @@ export const createKnowledgeBase = async (req, res) => {
     }
 
     let pdfUrl     = "";
-    let coverImage = "";
+   
 
     if (req.file) {
       const filePath = `/uploads/${req.ngoName}/${req.file.filename}`;
       if (req.file.mimetype === "application/pdf") {
         pdfUrl = filePath;
-      } else {
-        coverImage = filePath;
-      }
+      } 
     }
 
     const kb = await KnowledgeBase.create({
@@ -74,7 +72,7 @@ export const createKnowledgeBase = async (req, res) => {
       readTime:    readTime   ? Number(readTime)        : undefined,
       order:       order      ? Number(order)           : 0,
       pdfUrl,
-      coverImage,
+      
       status:      status     || "published",
       visibility:  visibility || "public",
       isFeatured:  isFeatured === "true" || isFeatured === true,
@@ -117,10 +115,7 @@ export const updateKnowledgeBase = async (req, res) => {
       if (req.file.mimetype === "application/pdf") {
         deleteFile(kb.pdfUrl);
         kb.pdfUrl = filePath;
-      } else {
-        deleteFile(kb.coverImage);
-        kb.coverImage = filePath;
-      }
+      } 
     }
 
     if (title)       kb.title       = title;
@@ -232,7 +227,7 @@ export const deleteKnowledgeBase = async (req, res) => {
       return res.status(404).json({ message: "Not found or unauthorized" });
     }
 
-    deleteFile(kb.coverImage);
+   
     deleteFile(kb.pdfUrl);
 
     await KnowledgeBase.findByIdAndDelete(req.params.id);

@@ -16,7 +16,6 @@ const getInvolvedSchema = new mongoose.Schema(
       required: true
     },
 
-    // ── Common Fields ──────────────────────────────
     name: {
       type: String,
       required: true,
@@ -41,33 +40,28 @@ const getInvolvedSchema = new mongoose.Schema(
       trim: true
     },
 
-    // ── Membership-only ────────────────────────────
     membershipType: {
       type: String,
     
     },
     otherMembershipType: {
       type: String,
-      trim: true  // used when membershipType === "Other"
+      trim: true 
     },
 
-    // ── Volunteer-only ─────────────────────────────
     area: {
       type: String,
      
     },
-
-    // ── Internship-only ────────────────────────────
     college: {
       type: String,
       trim: true
     },
     resumePath: {
-      type: String,  // stores file path like "uploads/resumes/filename.pdf"
+      type: String,  
       trim: true
     },
 
-    // ── Status (all types) ─────────────────────────
     status: {
       type: String,
       enum: ["new", "reviewed", "accepted", "rejected"],

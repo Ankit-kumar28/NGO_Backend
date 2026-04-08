@@ -3,7 +3,8 @@ import express from "express";
 import {
   createGetInvolved,
   getGetInvolved,
-  updateStatus
+  updateStatus,
+  deleteGetInvolved
 } from "../controllers/getInvolved.controller.js";
 import { ngoMiddleware } from "../middlewares/ngo.middleware.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
@@ -20,5 +21,6 @@ router.post(
 
 router.get("/get-involved", authMiddleware,ngoMiddleware, getGetInvolved);
 router.patch("/get-involved/:id/status", authMiddleware, ngoMiddleware, updateStatus);
+router.delete("/get-involved/:id", authMiddleware, ngoMiddleware, deleteGetInvolved);
 
 export default router;

@@ -46,11 +46,7 @@ const knowledgeBaseSchema = new mongoose.Schema(
       trim: true,
       default: "",
     },
-    coverImage: {
-      type: String,
-      trim: true,
-      default: "",
-    },
+   
 
     readTime: {
       type: Number,

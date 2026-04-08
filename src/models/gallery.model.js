@@ -42,12 +42,7 @@ uploadedBy: {
 },
    
 
-    // tags: [
-    //   {
-    //     type: String,
-    //     index: true,
-    //   },
-    // ],
+  
 
     eventDate: {
       type: Date,
@@ -73,13 +68,7 @@ uploadedBy: {
 );
 
 
-//  TEXT SEARCH (optional but useful)
-// gallerySchema.index({
-//   title: "text",
-//   description: "text",
-//   tags: "text",
-//   location: "text",
-// });
+
 
 
 export const Gallery = mongoose.model("Gallery", gallerySchema);
